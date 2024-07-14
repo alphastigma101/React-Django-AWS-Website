@@ -141,11 +141,6 @@ def start_game(request):
         An Djagno api end point that shows the game has been started followed by the id
     """
     try:
-        start_game_data = request.query_params.get('history', None)
-        if start_game_data is None:
-            return Response({"Game History": "No history data provided."}, status=status.HTTP_400_BAD_REQUEST)
-        # Parse the data into Json format 
-        start_game_data = json.loads(start_game_data)
         GameViewSet.create_game_table()
         if not Game.objects.exists():
             Game.objects.create(history=start_game_data, current_move=0)
@@ -163,7 +158,7 @@ def start_game(request):
                     GameViewSet.set_serialize = serializer
                 except Exception as e:
                     logging_init.log_entry[datetime.now().isoformat()] = f'from start_game {e}'
-        return Response({"Game History": request.data}, status=status.HTTP_200_OK)
+        return Response({"Game History": "This field is where Json data of the game history will be stored at"}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
         logging_init.log_entry[datetime.now().isoformat()] = f"Error starting game: {e}"
@@ -217,9 +212,6 @@ def winner(request):
         - request: The HTTP request containing data
     """
     try:
-        winner_game_data = request.data.get('winner_history', {})  # Retrieve the JSON data sent in the request
-        # Ensure the game table is created if not already
-        WinnerViewSet.create_winner_table()
         WinnerViewSet.create_winner_table()
         # Create a new game instance
         if not Winner.objects.exists():
@@ -241,7 +233,7 @@ def winner(request):
         data = WinnerViewSet.get_queryset()
         serializer = WinnerSerializer(data, context={'request': request}, many=True)
         WinnerViewSet.set_serialize = serializer
-        return Response({"Winner Board": request.data}, status=status.HTTP_200_OK)
+        return Response({"Winner Board": "A dictionary that contains X and O as keys and the values will be integers to indicate the amount the player has won"}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
         logging_init.log_entry[datetime.now().isoformat()] = f"Error starting game: {e}"

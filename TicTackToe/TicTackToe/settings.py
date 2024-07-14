@@ -35,7 +35,6 @@ INSTALLED_APPS = [
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'rest_framework',
-        'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -49,10 +48,6 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = False # Having this set to True will be a major security breach 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
 
 ROOT_URLCONF = 'TicTackToe.urls'
 
