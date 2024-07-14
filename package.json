@@ -1,32 +1,43 @@
 {
   "name": "react.dev",
   "version": "0.0.0",
-  "main": "/src/index.js",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-scripts": "^5.0.1",
-    "@babel/eslint-parser": "^7.24.8",
-    "@babel/plugin-transform-async-generator-functions": "^7.24.7",
+  "devDependencies": {
     "@babel/plugin-transform-class-properties": "^7.24.7",
-    "@babel/plugin-transform-dynamic-import": "^7.24.7",
     "@babel/plugin-transform-json-strings": "^7.24.7",
     "@babel/plugin-transform-nullish-coalescing-operator": "^7.24.7",
     "@babel/plugin-transform-numeric-separator": "^7.24.7",
-    "@babel/plugin-transform-object-rest-spread": "^7.24.7",
     "@babel/plugin-transform-optional-chaining": "^7.24.8",
+    "@babel/plugin-transform-private-methods": "^7.24.7",
+    "@jridgewell/sourcemap-codec": "^1.5.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "react-scripts": "^5.0.1"
+  },
+  "main": "/src/index.js",
+  "scripts": {
+     "predeploy": "npm run audit:production && npm run audit:development",
+     "audit:production": "npm audit --production",
+     "audit:development": "npm audit --omit=dev",   
+     "start": "react-scripts start",
+     "build": "react-scripts build",
+     "test": "react-scripts test --env=jsdom",
+     "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "@babel/eslint-parser": "^7.24.8",
+    "@babel/plugin-transform-async-generator-functions": "^7.24.7",
+    "@babel/plugin-transform-dynamic-import": "^7.24.7",
+    "@babel/plugin-transform-object-rest-spread": "^7.24.7",
     "@babel/plugin-transform-unicode-property-regex": "^7.24.7",
     "@sideway/address": "^5.0.0",
+    "axios": "^1.7.2",
+    "chokidar": "^3.5.0",
     "joi": "^17.13.3",
-    "rimraf": "^4.0.0",
-    "chokidar": "^3.5.0"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "rimraf": "^4.0.0"
+  },
+  "resolutions" :{
+    "nth-check":"2.0.1"
   },
   "browserslist": {
     "production": [

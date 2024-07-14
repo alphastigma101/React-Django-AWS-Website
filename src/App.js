@@ -7,6 +7,14 @@ let log = {};
 let time = Date.now.toString();
 let logging_created = false;
 
+
+/*class App extends Component {
+  render() {
+    // ...
+  }
+}*/
+
+
 /*
  * Params:
       * value: Can be either X or O 
