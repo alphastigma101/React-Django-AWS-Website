@@ -3,7 +3,7 @@
 
 2. [System Requirements And Software](#system-requirements-and-software)
 
-3. [Running The App](#running-the-app)
+3. [Running The App](#running-the-app-automatically-or-manually)
 
 4. [Sources](#sources)
 
@@ -24,12 +24,12 @@
 * Install **pip** and **python3** and **python3-venv** for a virtual environment
 
 
-### Running the App  
-* Install dependencies with `npm install`. Note that there may be deprecated dependencies; this app is simple and **non-critical**. If dependencies complain about being deprecated, I have tried to fix the errors. Nevertheless, this app remains vulnerable, though it does not contain sensitive information or will it ever.
+### Running the App Automatically Or Manually  
+* Install dependencies with `npm install`. Note that there may be deprecated dependencies or it saying vulernable packages detected. You can ignore that if and only if talks about **nth-check** as the package.json file is structured in a way where it tests the product `dependencies` and the development `dependencies`. You can view this source here for more info: **https://stackoverflow.com/questions/71781795/react-npm-inefficient-regular-expression-complexity-in-nth-check**. You can also execute `deploy-app.sh` by she-banging it like so `deploy-app.sh` which will deploy the app
 
-* Start a **local server** with `npm start` and follow prompts to view the code running in a browser.
+* Start the app **on your client machine**, issue `npm start` and follow prompts to view the code running in a browser.
 
-* Open a new terminal and execute these commands to set it up inside the repo folder that was cloned: 
+* Open a **new terminal** and execute these commands to set it up inside the repo folder that was cloned: 
 ```
     python3 -m venv venv
     source venv/bin/active
