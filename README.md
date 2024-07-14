@@ -33,7 +33,7 @@
 ```
     python3 -m venv venv
     source venv/bin/active
-    pip install -r TicTackToe/requirements.txt
+    pip install --no-cache -r TicTackToe/requirements.txt
 ```
 * **Note:** If *venv/bin* does not exist, you need to find a folder that points to active inside venv 
 
@@ -43,9 +43,17 @@
     python3 manage.py runserver
 
 ```
+* **NOTE:** You can copy either all of them or copy just one at a time
+* **http://127.0.0.1:8000/polls/start_game** *To see Django's api history endpoint*
+* **http://localhost:8000/logging** this is to view  *Django's api logging* 
+* **http://localhost:8000/winner** this is to view *Django's winner apie endpoint*
 
-* **copy this into your browser: http://127.0.0.1:8000/polls/start_game**
-
+* **Sources:**
+* **COORSHEADERS**:
+    * *https://www.bezkoder.com/react-redux-crud-example/*
+* **React Component Examples**
+    * *https://legacy.reactjs.org/docs/components-and-props.html*
+    * *https://react.dev/reference/react/useState#adding-state-to-a-component*
 
 ### Sources
 

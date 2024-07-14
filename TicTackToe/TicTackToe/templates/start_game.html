@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Start Game</title>
+</head>
+<body>
+    <h1>Game Data</h1>
+    <ul>
+        {% for key, value in game_data.items %}
+            <li><strong>{{ key }}:</strong> {{ value }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

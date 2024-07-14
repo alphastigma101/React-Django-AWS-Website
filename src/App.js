@@ -1,6 +1,11 @@
-// Import modules from bundle.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+
+let X = 0;
+let O = 0;
+let log = {};
+let time = Date.now.toString();
+let logging_created = false;
 
 /*
  * Params:
@@ -32,7 +37,6 @@ function Board({ xIsNext, squares, onPlay }) {
   */
   function handleClick(i) {
     if (calculateWinner(squares) || squares[i]) {
-      // Add some logging here
       return;
     }
     const nextSquares = squares.slice();
@@ -46,8 +50,20 @@ function Board({ xIsNext, squares, onPlay }) {
   }
   const winner = calculateWinner(squares);
   let status;
-  if (winner) {
-    status = "Winner: " + winner;
+  if (Winner(winner) === true) {
+    if (winner === "X") { X += 1; }
+    else { O += 1; }
+    const  winnerBoard = {
+      'X': X,
+      'O': O
+    }
+     axios.get('http://localhost:8000/polls/winner', { winner_history: winnerBoard })
+      .then(response => {
+        log[time] = 'History updated successfully:' + String(response.data);
+      })
+      .catch(error => {
+        log[time] = 'Error updating history:' + String(error);
+      });
   } 
   else { 
     status = "Next player: " + (xIsNext ? "X" : "O"); 
@@ -79,12 +95,6 @@ function Board({ xIsNext, squares, onPlay }) {
  *
 */
 export default function Game() {
-  const [message, setMessage] = useState('');
-  useEffect(() => {
-    axios.get('http://localhost:8000/polls/start/').then(response => {
-      setMessage(response.data.message);
-    }).catch(error => { console.log(error); });
-  }, []);
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
@@ -99,6 +109,13 @@ export default function Game() {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
+    axios.get('http://localhost:8000/polls/start_game', {
+      params: { history: JSON.stringify(nextHistory) }
+    }).then(response => {
+      console.log('History updated successfully:', response.data);
+    }).catch(error => {
+        console.error('Error updating history:', error);
+    });
   }
   /*
    * Params:
@@ -122,7 +139,11 @@ export default function Game() {
         <button onClick={() => jumpTo(move)}>{description}</button>
       </li>
     );
-  }); 
+  });
+  if (logging_created == false) {
+    logging('Creating the logging Data!');
+    logging_created = true;
+  }
   return (
               <div className="game">
                 <div className="game-board">
@@ -153,4 +174,42 @@ function calculateWinner(squares) {
     }
   }
   return null;
+}
+
+
+export function Winner(winner) {
+  if (winner != null) {
+    return true;
+  }
+  return false;
+}
+
+export function logging({ error }) {
+  const [message, setMessage] = useState(error);
+  if (Object.keys(log).length === 0 && log.constructor === Object) {
+    log[time] = String(error);                                                
+  }
+  else {                                                                        
+    if (log[time] == undefined) {                                               
+      log[time] = String(error);                                              
+    }                                                                                                                                                                                                  
+  }
+  if (logging_created == false) {
+    axios.get('http://localhost:8000/polls/logging', { log_history: { log } })
+      .then(response => {
+        log[time] =  'Logged data fetched:' + String(response.data);
+      })
+      .catch(error => {
+        log[time] = 'Error fetching logs:' + String(error);
+      });
+  } 
+  else {
+    axios.get('http://localhost:8000/polls/logging', { log })
+      .then(response => {
+        log[time] = 'Logged data sent successfully:';
+      })
+      .catch(error => {
+        log[time] = String(error);
+      });
+  }
 }
