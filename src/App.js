@@ -1,5 +1,9 @@
+//import 
+import express from 'express';
+import path from 'path';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+
 
 let X = 0;
 let O = 0;
@@ -213,3 +217,11 @@ export function logging({ error }) {
       });
   }
 }
+
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.listen(3000);
