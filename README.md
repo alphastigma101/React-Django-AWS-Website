@@ -62,7 +62,48 @@
 * To set up your react on the front end, you will use **S3** which is a bucket, you need to also enable **static web hosting** once you're done creating the bucket, and set policies for it.
 * Here is my app product link: *http://react-tictacktoe.s3-website-us-west-2.amazonaws.com/*
 
-### 
+* In order to launch and deploy your front-end code, you need to create a IAM policy for it and add the user to it. You will get something like this:
+```
+
+```
+* Once you're done, give it a name. Mine is `CreateAndManageKeys`, and add it to a IAM user. You can simply create one by going to settings and clicking on *IAM/User* in your settings
+* Create the IAM user with the default options and you should see a link that allows you to create the access key for that IAM user.
+* You also need to add the newly created user to group and attached your newly created policy to it and add the user to it.
+* From there on, you want to execute this command in your client's terminal:
+```
+    aws configure 
+```
+* **You should get something like this:** 
+```
+    AWS Access Key ID [None]: <aws_access_key_id> 
+    AWS Secret Access Key [None]: <aws_secret_access_key>
+    Default region name [None]: us-west-1 
+    Default output format [None]: json
+```
+* Copy your access key into the terminal, press enter, and copy your secret key into it again, and press enter.
+* For the region, I went with *us-west-1*
+
+
+
+* To keep updating your app from the cli, you can do this: 
+```
+    aws s3 sync <folder_path> s3://name-of-bucket
+```
+* My bucket name is `s3://react-tictacktoe`, and I want to upload my `build` folder's **files** and my **src** folder as well. 
+* **NOTE:** index.html must be at the top-level directory meaning it should not be inside a folder
+
+** **Sources:**
+    * **Creating And Managing Access Keys For IAM**:
+        * *https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html*
+    * **Creating Your First Policy**
+        * *https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started-iam-policy.html*
+
+### Setting Up The BackEnd
+
+* **Sources:**
+    * *https://awstip.com/host-back-end-environment-in-aws-ec2-d254bc4135e4*
+
+
 
 ### Sources
 
