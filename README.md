@@ -115,19 +115,93 @@
 * **ACLS**
 * They control how the subnets of a network communicate with eachother while the **security groups** communicate at a higher level
 * **INNER BOUND RULES:**
+* *<FMI>*
 * **OUTERBOUND RULES**
+* *<FMI>*
 
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html?icmpid=docs_ec2_console#concepts-public-addresses
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#eic-prereqs-network-access
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#ec2-instance-connect-setup-security-group
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html
-https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html?icmpid=docs_amazons3_console
-https://docs.aws.amazon.com/comprehend/latest/dg/setting-up.html
-https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
-https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-local-access
+*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html?icmpid=docs_ec2_console#concepts-public-addresses*
+*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#eic-prereqs-network-access*
+*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#ec2-instance-connect-setup-security-group*
+*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html*
+*https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html?icmpid=docs_amazons3_console*
+*https://docs.aws.amazon.com/comprehend/latest/dg/setting-up.html*
+*https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html*
+*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-local-access*
 * Read this: *https://dev.to/awscommunity-asean/create-and-deploy-python-django-application-in-aws-ec2-instance-4hbm*
 * **Sources:**
     * *https://awstip.com/host-back-end-environment-in-aws-ec2-d254bc4135e4*
+
+### Setting Up A Custom VPC
+* To setup a custom VPC (Virtual Private Connect), which is a private network, you need to configure a security group that will be associated with it, with basic rules such as routing HTTP,HTTPS, and SSH, you also need to set up the routing table which needs to be routed to your *internet gateway*, and it needs to be attached to your vpc. 
+
+### Setting Up A Custom VPC
+* In order to create a custom VPC, you need to configure a set of rules in your *security groups* and *ACL rules*
+
+
+
+# Sources: 
+    .....
+
+### TroubleShooting your VPC
+* When using the query command, you can modify the json structure and filter out what you want to see like so:
+```
+ --query "string,Ebs={DeleteOnTermination=boolean,VolumeId=string},NoDevice=string,VirtualName=string}"
+
+       JSON Syntax:
+
+          [
+            {
+              "DeviceName": "string",
+              "Ebs": {
+                "DeleteOnTermination": true|false,
+                "VolumeId": "string"
+              },
+              "NoDevice": "string",
+              "VirtualName": "string"
+            }
+            ...
+          ]
+
+
+
+```
+# Verifying Your Routing Table
+```
+    It is good practice that your routing table routes all your network traffic to your gateway. Which in this case for AWS, your gateway would be igw-xxxxxxxx
+    This section will give you steps to verify that your routing table is indeed set up correctly. This section will only have AWS CLI steps, so if you're using the AWS GUI, you can visual check and see if your routing table is properly connected
+````
+    * Enter the command after you have issued `aws configure`:
+        ```
+            aws ec2 describe-route-tables --filters "Name=vpc-id,Values=<your-vpc-id>"
+        ```
+    * **NOTE:** The command above will output a json structure that will show you your vpc network id and the name **which is needed** for the next step
+    * This should help you verify to see if your routing table is set up correctly
+    * ---------------------------------------------------------------------------------------------------------------------------------------------------
+    * **Section:** Check and see if your VPC is connected to your instance
+        * To check to see if your instance is connected to your VPC, you need its Id:
+        ```
+            aws ec2 describe-instances --query "Reservations[*].Instances[*].{ID:InstanceId}"
+        ```
+        * Once you obtain your Id, issue this command:
+        ```
+            aws allocate-address --region <your region>
+        ```
+        * Copy and paste the Id into here:
+        ```
+
+        ```
+# Sources:
+        * **Connect to your instance through SSH**:
+            - *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html#ec2-connect-to-instance-windows*
+        * **What is a elastic Ip address**:
+            - *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html*
+        * **Setting Up SSM Agent**:
+            - *https://docs.aws.amazon.com/systems-manager/latest/userguide/ssm-agent-linux.html*
+            - *https://docs.aws.amazon.com/systems-manager/latest/userguide/manually-install-ssm-agent-linux.html*
+        * **Attach a policy to your IAM user**:
+            - *https://awstip.com/troubleshooting-failed-to-connect-to-your-instance-response-on-ec2-92428837ea4a*
+        
+
 
 
 
