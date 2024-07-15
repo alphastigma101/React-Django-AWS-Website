@@ -202,6 +202,92 @@
             - *https://awstip.com/troubleshooting-failed-to-connect-to-your-instance-response-on-ec2-92428837ea4a*
         
 
+### Automatically Deploying Your App On The BackEnd
+
+* Issue this command: `sudo nano /etc/systemd/system/gunicorn.service` and copy the code below and modify it so it points to the *wsgi* python module:
+
+```
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/<PROJECT-NAME>
+ExecStart=/home/ubuntu/React-Django-AWS-Website/venv/bin/gunicorn \
+--access-logfile - \
+--workers 3 \
+--bind unix:/home/ubuntu/React-Django-AWS-Website/gunicorn.sock \
+<PROJECT-NAME>.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+```
+* **NOTE:** My project name is `TicTackToe` So I would place `PROJECT_NAME` with it 
+
+
+* Run this command: `sudo vim /etc/systemd/system/gunicorn.socket` and copy this code: 
+```
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/home/ubuntu/<PROJECT_NAME>/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+```
+* **NOTE:** change `PROJECT_NAME` to your actually project name and change the **/home/ubuntu** to your actual user for both of those files
+
+* Issue these commands: 
+```
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+```
+* Check the socket status just in case: 
+```
+sudo systemctl status gunicorn.socket
+```
+* Issue this command: `sudo vim /etc/nginx/sites-available/<YOUR-PROJECT-NAME>` and add the following code into the file you created and modify it :
+```
+server {
+listen 80;
+server_name YOUR_INSTANCE_ELASTIC_IP_ADDRESS;
+
+location = /favicon.ico { access_log off; log_not_found off; }
+location /static/ {
+root /home/ubuntu/<YOUR-PROJECT>;
+}
+
+location /media/ {
+root /home/ubuntu/<YOUR-PROJECT>;    
+}
+
+location / {
+include proxy_params;
+proxy_pass http://unix:/run/gunicorn.sock;
+}
+}
+```
+* Check it: 
+```
+    sudo nginx -t
+```
+
+* Link it:
+```
+sudo ln -s /etc/nginx/sites-available/<YOUR-PROJECT-NAME> /etc/nginx/sites-enabled
+
+```
+* Restart `nginx` and visit the elastic ip address:
+```
+    sudo systemctl restart nginx
+```
+
+
+
 
 
 
