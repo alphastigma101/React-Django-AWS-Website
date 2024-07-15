@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+
 let X = 0;
 let O = 0;
 let log = {};
@@ -57,7 +58,7 @@ function Board({ xIsNext, squares, onPlay }) {
       'X': X,
       'O': O
     }
-     axios.get('http://localhost:8000/polls/winner', { winner_history: winnerBoard })
+     axios.get('http://34.219.59.64:8000/polls/winner', { winner_history: winnerBoard })
       .then(response => {
         log[time] = 'History updated successfully:' + String(response.data);
       })
@@ -109,16 +110,13 @@ export default function Game() {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
-    // Send POST request to update history
-    axios.get('http://localhost:8000/polls/start_game', { history: nextHistory })
-      .then(response => {
-        console.log('History updated successfully:', response.data);
-        log[time] = 'History updated successfully: ' + JSON.stringify(response.data);
-      })
-      .catch(error => {
+    axios.get('http://34.219.59.64:8000/polls/start_game', {
+      params: { history: JSON.stringify(nextHistory) }
+    }).then(response => {
+      console.log('History updated successfully:', response.data);
+    }).catch(error => {
         console.error('Error updating history:', error);
-        log[time] = 'Error updating history: ' + String(error);
-      });
+    });
   }
   /*
    * Params:
@@ -198,7 +196,7 @@ export function logging({ error }) {
     }                                                                                                                                                                                                  
   }
   if (logging_created == false) {
-    axios.get('http://localhost:8000/polls/logging', { log_history: { log } })
+    axios.get('http://34.219.59.64:8000/polls/logging', { log_history: { log } })
       .then(response => {
         log[time] =  'Logged data fetched:' + String(response.data);
       })
@@ -207,7 +205,7 @@ export function logging({ error }) {
       });
   } 
   else {
-    axios.post('http://localhost:8000/polls/logging', { log })
+    axios.get('http://34.219.59.64:8000/polls/logging', { log })
       .then(response => {
         log[time] = 'Logged data sent successfully:';
       })
@@ -216,3 +214,4 @@ export function logging({ error }) {
       });
   }
 }
+
