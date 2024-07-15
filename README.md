@@ -90,16 +90,42 @@
     aws s3 sync <folder_path> s3://name-of-bucket
 ```
 * My bucket name is `s3://react-tictacktoe`, and I want to upload my `build` folder's **files** and my **src** folder as well. 
-* **NOTE:** index.html must be at the top-level directory meaning it should not be inside a folder
+* **NOTE:** index.html must be at the top-level directory meaning it should not be inside a folder, if you manually drap and drop them into the bucket
+* Whenever you create new policies they will always be in a **json data structure** 
 
 ** **Sources:**
+    * **Deploying your front end code to S3**:
+        - *https://dev.to/oyetoket/how-to-deploy-your-frontend-application-on-aws-s3-31m9*
     * **Creating And Managing Access Keys For IAM**:
         * *https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html*
     * **Creating Your First Policy**
         * *https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started-iam-policy.html*
 
-### Setting Up The BackEnd
 
+
+
+### Setting Up The BackEnd
+* TODO:
+    * Save the rules from security group and delete them 
+    * Do the same thing with the acls
+    * Re-create the back end and get it to work then add back the rules
+
+
+
+* **ACLS**
+* They control how the subnets of a network communicate with eachother while the **security groups** communicate at a higher level
+* **INNER BOUND RULES:**
+* **OUTERBOUND RULES**
+
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html?icmpid=docs_ec2_console#concepts-public-addresses
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#eic-prereqs-network-access
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#ec2-instance-connect-setup-security-group
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html?icmpid=docs_amazons3_console
+https://docs.aws.amazon.com/comprehend/latest/dg/setting-up.html
+https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-local-access
+* Read this: *https://dev.to/awscommunity-asean/create-and-deploy-python-django-application-in-aws-ec2-instance-4hbm*
 * **Sources:**
     * *https://awstip.com/host-back-end-environment-in-aws-ec2-d254bc4135e4*
 

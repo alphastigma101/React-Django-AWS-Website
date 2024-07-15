@@ -23,7 +23,7 @@ export default function Game() {
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
 
-    axios.get('http://34.219.59.64:8000/polls/start_game', {
+    axios.get('https://34.219.59.64:8000/polls/start_game', {
       params: { history: JSON.stringify(nextHistory) }
     }).then(response => {
       console.log('History updated successfully:', response.data);
@@ -67,7 +67,7 @@ export default function Game() {
         'X': X,
         'O': O
       };
-      axios.get('http://34.219.59.64:8000/polls/winner', { params: { winner_history: winnerBoard } })
+      axios.get('https://34.219.59.64:8000/polls/winner', { params: { winner_history: winnerBoard } })
         .then(response => {
           setLog(prevLog => ({
             ...prevLog,
@@ -95,7 +95,7 @@ export default function Game() {
       }
     }
 
-    axios.get('http://34.219.59.64:8000/polls/logging', { params: { log_history: log } })
+    axios.get('https://34.219.59.64:8000/polls/logging', { params: { log_history: log } })
       .then(response => {
         setLog(prevLog => ({
           ...prevLog,
