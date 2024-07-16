@@ -11,7 +11,6 @@ class GameSerializer(serializers.ModelSerializer):
         '''
         model = Game
         fields = (
-                'game_id',
                 'history',
                 'current_move'
                 )
@@ -26,7 +25,6 @@ class LoggingSerializer(serializers.ModelSerializer):
         '''
         model = Logging
         fields = (
-                'logging_id',
                 'entries'
                 )
 
@@ -41,7 +39,6 @@ class WinnerSerializer(serializers.ModelSerializer):
         '''
         model = Winner
         fields = (
-                'winner_id',
                 'amount_of_times'
                 )
 

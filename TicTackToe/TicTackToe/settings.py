@@ -35,6 +35,7 @@ INSTALLED_APPS = [
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'rest_framework',
+        'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -47,7 +48,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-
+# Need to also add the static webpage 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 
 ROOT_URLCONF = 'TicTackToe.urls'
 

@@ -25,6 +25,11 @@ class LoggingViewSet(viewsets.ViewSet):
         self.log_entry = log_entry
 
     def rotate_logs(self):
+        """
+            (rotate_logs): This method will rotate the log entries by removing them if and only if the log entry is behind 30 minutes. It will also remove duplicated entries 
+                Params: 
+                    self: an object that is apart of the constructor.
+        """
         current_time = datetime.now()
         for timestamp_str in list(self.log_entry.keys()):
             timestamp = datetime.fromisoformat(timestamp_str)
@@ -33,6 +38,11 @@ class LoggingViewSet(viewsets.ViewSet):
                 del self.log_entry[timestamp_str]
 
     def create_logging_table(self):
+        """
+            (create_logging_table): This method will create a relational database called TicTackToe_logging
+            Params:
+                self: an object that is apart of the constructor.
+        """
         try:
             table_exists = 'logging' in connection.introspection.table_names()
             if not table_exists:
@@ -40,35 +50,64 @@ class LoggingViewSet(viewsets.ViewSet):
                 call_command('migrate')
                 with connection.schema_editor() as schema_editor:
                     schema_editor.create_model(Logging)
-                text = "Game table created successfully."
+                text = "Logging table created successfully."
                 self.log_entry[datetime.now().isoformat()] = text
         except DatabaseError as e:
-            text = f"Error creating game table: {e}"
+            text = f"Error creating Logging table: {e}"
             self.log_entry[datetime.now().isoformat()] = text
 
     def get_queryset(self):
+        """
+            (get_queryset): This method is a getter method. It queries all the entities and the attributes and stores them into a dictionary 
+            Params:
+                self: An object that is apart of the constructor which allows type mangling 
+        """
         return Logging.objects.all()
 
     def set_serialize(self, serialize):
+        """
+            (set_serialize): This method is a setter method. It sets the __serialize. 
+            Params:
+                self: An object that is apart of the constructor.
+        """
         self.__serialize = serialize
 
     def get_serialize(self):
+        """
+            (get_serialize): This is a getter method. 
+            Params: An object that is apart of the constructor which allows access to the attributes
+            Returns:
+                    self.__serialize
+        """
         return self.__serialize
 
 logging_init = LoggingViewSet({}) # Create a constant instance
 
 class GameViewSet(viewsets.ModelViewSet):
     '''
-        This class has methods that can create the Game table, Query from it, and obtain the serial
+        This class represents a singleton static class.
     '''
     __serialize = None
+    _instance = None  # Class variable to hold the singleton instance
+
+    @staticmethod
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     @staticmethod 
     def create_game_table():
+        """
+            (create_game_table): This method creates a relational database table called TicTackToe_game if it does not exist
+            Params:
+                None
+            Returns:
+                None
+        """
         try:
             # Ensure the game_game table exists
-            table_exists = 'game' in connection.introspection.table_names()
-            
+            table_exists = 'game' in connection.introspection.table_names()            
             if not table_exists:
                 # Run migrations to ensure the database schema is up to date
                 call_command('makemigrations', 'TicTackToe')
@@ -78,20 +117,39 @@ class GameViewSet(viewsets.ModelViewSet):
                 with connection.schema_editor() as schema_editor:
                     schema_editor.create_model(Game)
                 logging_init.log_entry[datetime.now().isoformat()] = "Game table created successfully."
-        except DatabaseError as e:
-            # Handle database errors
+        except DatabaseError as e:        
             logging_init.log_entry[datetime.now().isoformat()] = f"Error creating game table: {e}"
+
 
     @staticmethod
     def get_queryset():
+        """
+            (get_queryset): This method is a getter method. It queries all the entities and the attributes and stores them into a dictionary 
+            Params:
+                self: An object that is apart of the constructor which allows type mangling 
+        """
+
         return Game.objects.all()
 
+    
     @staticmethod
-    def  get_serialize():
-        return GameViewSet.__serialize
+    def set_serialize(serialize):
+        """
+            (set_serialize): This method is a setter method. It sets the __serialize. 
+            Params:
+                self: An object that is apart of the constructor.
+        """
+        GameViewSet.__serialize = serialize
+
 
     @staticmethod
     def get_serialize():
+        """
+            (get_serialize): This is a getter method. 
+            Params: An object that is apart of the constructor which allows access to the attributes
+            Returns:
+                    self.__serialize
+        """
         return GameViewSet.__serialize
 
 
@@ -99,12 +157,30 @@ class WinnerViewSet(viewsets.ModelViewSet):
     '''
         This class has methods that can create the Game table, Query from it, and obtain the serial
     '''
+
+
     __serialize = None
+    _instance = None  # Class variable to hold the singleton instance
+
+
+    @staticmethod
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
 
     @staticmethod 
     def create_winner_table():
+        """
+            (create_winner_table): This method creates a relational database table called TicTackToe_winner if it does not exist
+            Params:
+                None
+            Returns:
+                None
+        """
         try:
-            # Ensure the game_game table exists
+            # Ensuring the winner table exists
             table_exists = 'winner' in connection.introspection.table_names()
             
             if not table_exists:
@@ -124,14 +200,32 @@ class WinnerViewSet(viewsets.ModelViewSet):
     
     @staticmethod
     def set_serialize(serialize):
+        """
+            (set_serialize): This method is a setter method. It sets the __serialize. 
+            Params:
+                self: An object that is apart of the constructor.
+        """
         WinnerViewSet.__serialize = serialize
 
+    
     @staticmethod
     def get_serialize():
+        """
+            (get_serialize): This is a getter method. 
+            Params: An object that is apart of the constructor which allows access to the attributes
+            Returns:
+                    self.__serialize
+        """
         return WinnerViewSet.__serialize
+
 
     @staticmethod
     def get_queryset():
+        """
+            (get_queryset): This method is a getter method. It queries all the entities and the attributes and stores them into a dictionary 
+            Params:
+                self: An object that is apart of the constructor which allows type mangling 
+        """
         return Winner.objects.all()
 
 
