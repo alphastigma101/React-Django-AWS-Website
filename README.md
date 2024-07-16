@@ -8,8 +8,6 @@
 4. [Sources](#sources)
 
 
-
-
 ### Introduction
 ```
     The purpose of this public repo is to demostrate my knowledge of Django and React.js. The goal is to build an app using React.js for the front-end and Django as its backend.
@@ -24,7 +22,15 @@
 * Install **pip** and **python3** and **python3-venv** for a virtual environment
 
 
-### Running the App Automatically Or Manually  
+### React
+
+* *<FMI>*
+* **ReactDOM**:
+    * *https://legacy.reactjs.org/docs/react-dom.html*
+* **React**:
+    * *https://legacy.reactjs.org/docs/react-api.html*
+
+### Running the App Locally 
 * Install dependencies with `npm install`. Note that there may be deprecated dependencies or it saying vulernable packages detected. You can ignore that if and only if talks about **nth-check** as the package.json file is structured in a way where it tests the product `dependencies` and the development `dependencies`. You can view this source here for more info: **https://stackoverflow.com/questions/71781795/react-npm-inefficient-regular-expression-complexity-in-nth-check**. You can also execute `deploy-app.sh` by she-banging it like so `deploy-app.sh` which will deploy the app
 
 * Start the app **on your client machine**, issue `npm start` and follow prompts to view the code running in a browser.
@@ -48,7 +54,7 @@
 * **http://localhost:8000/logging** this is to view  *Django's api logging* 
 * **http://localhost:8000/winner** this is to view *Django's winner apie endpoint*
 
-* **Sources:**
+# Sources
 * **COORSHEADERS**:
     * *https://www.bezkoder.com/react-redux-crud-example/*
 * **React Component Examples**
@@ -93,7 +99,7 @@
 * **NOTE:** index.html must be at the top-level directory meaning it should not be inside a folder, if you manually drap and drop them into the bucket
 * Whenever you create new policies they will always be in a **json data structure** 
 
-** **Sources:**
+# Sources
     * **Deploying your front end code to S3**:
         - *https://dev.to/oyetoket/how-to-deploy-your-frontend-application-on-aws-s3-31m9*
     * **Creating And Managing Access Keys For IAM**:
@@ -102,15 +108,18 @@
         * *https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started-iam-policy.html*
 
 
-
+* ----------------------------------------------------------------------------------------------
 
 ### Setting Up The BackEnd
-* TODO:
-    * Save the rules from security group and delete them 
-    * Do the same thing with the acls
-    * Re-create the back end and get it to work then add back the rules
+* In order to set up your back end code for automatic deployment, you need to create an EC2 instance, with a VPC attached to it, a security group needs to be associated with it, and a couple of ACL/Security Group rules added to it. And you need to create a IAM user. You also need a Elastic IP Address which you can create by visiting EC2 and look to the left panel until you see elastic, or you can generate one and attach your instance to it
 
+* The ACL rules are quite simple such as all you really need to do is create one in-bound rule that allows all incoming traffic and create the same exact rule but for the out-bound rule. Make sure that 
 
+* You need to also create a outbound rule on the security group level that allows outside network to come in but it must be your public ip that is permitted
+
+* Make a script that will automatically execute and restart the gunicorn.service, gunicorn.socket, and nginx
+    
+* *<FMI>*
 
 * **ACLS**
 * They control how the subnets of a network communicate with eachother while the **security groups** communicate at a higher level
@@ -119,28 +128,37 @@
 * **OUTERBOUND RULES**
 * *<FMI>*
 
-*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html?icmpid=docs_ec2_console#concepts-public-addresses*
-*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#eic-prereqs-network-access*
-*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#ec2-instance-connect-setup-security-group*
-*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html*
-*https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html?icmpid=docs_amazons3_console*
-*https://docs.aws.amazon.com/comprehend/latest/dg/setting-up.html*
-*https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html*
-*https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-local-access*
-* Read this: *https://dev.to/awscommunity-asean/create-and-deploy-python-django-application-in-aws-ec2-instance-4hbm*
-* **Sources:**
-    * *https://awstip.com/host-back-end-environment-in-aws-ec2-d254bc4135e4*
+# Sources
+* **Setting premissions for your IAM**
+        * *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-configure-IAM-role.html*
+* *https://awstip.com/host-back-end-environment-in-aws-ec2-d254bc4135e4*
+* *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html?icmpid=docs_ec2_console#concepts-public-addresses*
+* *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#eic-prereqs-network-access*
+* *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-prerequisites.html#ec2-instance-connect-setup-security-group*
+* *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html*
+* *https://docs.aws.amazon.com/AmazonS3/latest/userguide/enabling-cors-examples.html?icmpid=docs_amazons3_console*
+* *https://docs.aws.amazon.com/comprehend/latest/dg/setting-up.html*
+* *https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html*
+* *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-local-access*
+
+* ---------------------------------------------------------------------------------------------
 
 ### Setting Up A Custom VPC
 * To setup a custom VPC (Virtual Private Connect), which is a private network, you need to configure a security group that will be associated with it, with basic rules such as routing HTTP,HTTPS, and SSH, you also need to set up the routing table which needs to be routed to your *internet gateway*, and it needs to be attached to your vpc. 
 
-### Setting Up A Custom VPC
-* In order to create a custom VPC, you need to configure a set of rules in your *security groups* and *ACL rules*
+### Deploying DJano On The Back-End
+* Run this on the back end after sshing into it:
+```
+    python3 TicTackToe/manage.py runserver 0:8000
+```
 
 
 
 # Sources: 
-    .....
+    * **Setting Up Back End Code:**
+        - *https://realpython.com/django-nginx-gunicorn/#starting-with-django-and-wsgiserver*
+
+* --------------------------------------------------------------------------------------------
 
 ### TroubleShooting your VPC
 * When using the query command, you can modify the json structure and filter out what you want to see like so:
@@ -201,44 +219,46 @@
         * **Attach a policy to your IAM user**:
             - *https://awstip.com/troubleshooting-failed-to-connect-to-your-instance-response-on-ec2-92428837ea4a*
         
+* --------------------------------------------------------------------------------------
 
 ### Automatically Deploying Your App On The BackEnd
 
 * Issue this command: `sudo nano /etc/systemd/system/gunicorn.service` and copy the code below and modify it so it points to the *wsgi* python module:
 
 ```
-[Unit]
-Description=gunicorn daemon
-Requires=gunicorn.socket
-After=network.target
+    [Unit]
+        Description=gunicorn daemon
+        Requires=gunicorn.socket
+        After=network.target
 
-[Service]
-User=ubuntu
-Group=ubuntu
-WorkingDirectory=/home/ubuntu/<PROJECT-NAME>
-ExecStart=/home/ubuntu/React-Django-AWS-Website/venv/bin/gunicorn \
---access-logfile - \
---workers 3 \
---bind unix:/home/ubuntu/React-Django-AWS-Website/gunicorn.sock \
-<PROJECT-NAME>.wsgi:application
+    [Service]
+        User=ubuntu
+        Group=ubuntu
+        WorkingDirectory=/home/ubuntu/<PROJECT-NAME>
+        ExecStart=/home/ubuntu/React-Django-AWS-Website/venv/bin/gunicorn \
+            --access-logfile - \
+            --workers 3 \
+            --bind unix:/home/ubuntu/React-Django-AWS-Website/gunicorn.sock \
+            <PROJECT-NAME>.wsgi:application
 
-[Install]
-WantedBy=multi-user.target
+    [Install]
+        WantedBy=multi-user.target
 ```
 * **NOTE:** My project name is `TicTackToe` So I would place `PROJECT_NAME` with it 
 
 
 * Run this command: `sudo vim /etc/systemd/system/gunicorn.socket` and copy this code: 
 ```
-[Unit]
-Description=gunicorn socket
+    [Unit]
+        Description=gunicorn socket
 
-[Socket]
-ListenStream=/home/ubuntu/<PROJECT_NAME>/gunicorn.sock
+    [Socket]
+        ListenStream=/home/ubuntu/<PROJECT_NAME>/gunicorn.sock
 
-[Install]
-WantedBy=sockets.target
+    [Install]
+        WantedBy=sockets.target
 ```
+* **NOTE:** By making the gunicorn not in */run* where it normally should be at, this avoids premission issues and you're not doing anything sensitive with it so it should be fine
 * **NOTE:** change `PROJECT_NAME` to your actually project name and change the **/home/ubuntu** to your actual user for both of those files
 
 * Issue these commands: 
@@ -253,22 +273,19 @@ sudo systemctl status gunicorn.socket
 * Issue this command: `sudo vim /etc/nginx/sites-available/<YOUR-PROJECT-NAME>` and add the following code into the file you created and modify it :
 ```
 server {
-listen 80;
-server_name YOUR_INSTANCE_ELASTIC_IP_ADDRESS;
-
-location = /favicon.ico { access_log off; log_not_found off; }
-location /static/ {
-root /home/ubuntu/<YOUR-PROJECT>;
-}
-
-location /media/ {
-root /home/ubuntu/<YOUR-PROJECT>;    
-}
-
-location / {
-include proxy_params;
-proxy_pass http://unix:/run/gunicorn.sock;
-}
+    listen 80;
+    server_name YOUR_INSTANCE_ELASTIC_IP_ADDRESS;
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/ubuntu/<YOUR-PROJECT>;
+    }
+    location /media/ {
+        root /home/ubuntu/<YOUR-PROJECT>;    
+    }
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/ubuntu/React-Django-AWS-Website/gunicorn.sock;
+    }
 }
 ```
 * Check it: 
@@ -286,14 +303,29 @@ sudo ln -s /etc/nginx/sites-available/<YOUR-PROJECT-NAME> /etc/nginx/sites-enabl
     sudo systemctl restart nginx
 ```
 
+* **NOTE:** Whenever you shutdown your instance, you need to restart your gunicorn.service file. A bash script can be created that will automatically executed on the user level if needed.
 
-
-
-
+# TroubleShooting Auto Deployment
+* If you run into **bad gateway 502**, you need to change the user to **root** inside the `nginx.conf` file. More info here: *https://stackoverflow.com/questions/70111791/nginx-13-permission-denied-while-connecting-to-upstream*
+ 
 
 ### Sources
+* **Deploying Back End Code:**
+        * **NOTE**: The guides below are a bit out dated such as you don't really need to create all the in-bound/out-bound rules
+        * *https://dev.to/awscommunity-asean/create-and-deploy-python-django-application-in-aws-ec2-instance-4hbm*
+        * *https://dev.to/rmiyazaki6499/deploying-a-production-ready-django-app-on-aws-1pk3#installing-dependencies*
+    * **Perks Of Creating .socket Inside The Root Of Your Project:**
+        * You avoid premission errors which is very crucial when it comes to back end deployment
+        * *https://pythoncircle.com/post/697/hosting-django-app-for-free-on-amazon-aws-ec2-with-gunicorn-and-nginx/*
 
-* **ReactDOM**:
-    * *https://legacy.reactjs.org/docs/react-dom.html*
-* **React**:
-    * *https://legacy.reactjs.org/docs/react-api.html*
+
+
+# Viewing My Website And Seeing Examples Of Visiting My Server
+
+* To visit my api end points as an example: 
+```
+    http://52.41.13.5/polls/start_game
+    http://52.41.13.5/polls/logging
+    http://52.41.13.5/polls/winner
+```
+
