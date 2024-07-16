@@ -1,44 +1,49 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
+let X = 0;
+let O = 0;
+let time = Date.now().toString();
+
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const [log, setLog] = useState({});
   const [loggingCreated, setLoggingCreated] = useState(false);
-
-  let X = 0;
-  let O = 0;
-  let time = Date.now().toString();
-
   useEffect(() => {
     if (!loggingCreated) {
       logging('Creating the logging Data!');
       setLoggingCreated(true);
     }
   }, [loggingCreated]);
-
+  /*
+   * (handlePlay): Is a private function of the Game Function
+   * Params:
+      *  nextSquares: 
+  */
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
-
-    axios.get('https://34.219.59.64:8000/polls/start_game', {
-      params: { history: JSON.stringify(nextHistory) }
-    }).then(response => {
-      console.log('History updated successfully:', response.data);
+    // Make a post request and send the history data to the server
+    axios.post('http://52.41.13.5/polls/start_game', { params: { history: JSON.stringify(nextHistory) } }).then(response => {
+        console.log('History updated successfully:', response.data);
     }).catch(error => {
+      // Need to see if the code is being executed locally and embed it in here or find another way
       console.error('Error updating history:', error);
     });
   }
-
+  /*
+   * (jumpTo): Is a private function of Game Function
+   * Params:
+      * nextMove: 
+   *
+  */
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
   }
-
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
-
   const moves = history.map((squares, move) => {
     const description = move > 0 ? `Go to move #${move}` : 'Go to game start';
     return (
@@ -58,7 +63,6 @@ export default function Game() {
   }
 
   const winner = calculateWinner(currentSquares);
-
   useEffect(() => {
     if (Winner(winner)) {
       if (winner === 'X') { X += 1; }
@@ -67,7 +71,7 @@ export default function Game() {
         'X': X,
         'O': O
       };
-      axios.get('https://34.219.59.64:8000/polls/winner', { params: { winner_history: winnerBoard } })
+      axios.post('http://52.41.13.5/polls/winner', { params: { winner_history: winnerBoard } })
         .then(response => {
           setLog(prevLog => ({
             ...prevLog,
@@ -82,7 +86,6 @@ export default function Game() {
         });
     }
   }, [winner]);
-
   function logging(error) {
     if (Object.keys(log).length === 0 && log.constructor === Object) {
       setLog({ [time]: String(error) });
@@ -95,7 +98,7 @@ export default function Game() {
       }
     }
 
-    axios.get('https://34.219.59.64:8000/polls/logging', { params: { log_history: log } })
+    axios.post('http://52.41.13.5/polls/logging', { params: { log_history: log } })
       .then(response => {
         setLog(prevLog => ({
           ...prevLog,
@@ -186,4 +189,3 @@ function calculateWinner(squares) {
 export function Winner(winner) {
   return winner != null;
 }
-
