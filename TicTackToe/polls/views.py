@@ -15,7 +15,7 @@ class LoggingViewSet(viewsets.ViewSet):
         A class that implements the singleton method and also represents the the logging view
     '''
     _instance = None  # Class variable to hold the singleton instance
-    __serialize = None
+    
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls)
@@ -64,30 +64,13 @@ class LoggingViewSet(viewsets.ViewSet):
         """
         return Logging.objects.all()
 
-    def set_serialize(self, serialize):
-        """
-            (set_serialize): This method is a setter method. It sets the __serialize. 
-            Params:
-                self: An object that is apart of the constructor.
-        """
-        self.__serialize = serialize
-
-    def get_serialize(self):
-        """
-            (get_serialize): This is a getter method. 
-            Params: An object that is apart of the constructor which allows access to the attributes
-            Returns:
-                    self.__serialize
-        """
-        return self.__serialize
-
+    
 logging_init = LoggingViewSet({}) # Create a constant instance
 
 class GameViewSet(viewsets.ModelViewSet):
     '''
         This class represents a singleton static class.
     '''
-    __serialize = None
     _instance = None  # Class variable to hold the singleton instance
 
     @staticmethod
@@ -132,36 +115,14 @@ class GameViewSet(viewsets.ModelViewSet):
         return Game.objects.all()
 
     
-    @staticmethod
-    def set_serialize(serialize):
-        """
-            (set_serialize): This method is a setter method. It sets the __serialize. 
-            Params:
-                self: An object that is apart of the constructor.
-        """
-        GameViewSet.__serialize = serialize
-
-
-    @staticmethod
-    def get_serialize():
-        """
-            (get_serialize): This is a getter method. 
-            Params: An object that is apart of the constructor which allows access to the attributes
-            Returns:
-                    self.__serialize
-        """
-        return GameViewSet.__serialize
-
-
+    
 class WinnerViewSet(viewsets.ModelViewSet):
     '''
         This class has methods that can create the Game table, Query from it, and obtain the serial
     '''
 
 
-    __serialize = None
     _instance = None  # Class variable to hold the singleton instance
-
 
     @staticmethod
     def __new__(cls, *args, **kwargs):
@@ -198,26 +159,7 @@ class WinnerViewSet(viewsets.ModelViewSet):
             text = f'Error creating Winner table: {e}'
             logging_init.log_entry[datetime.now().isoformat()] = text
     
-    @staticmethod
-    def set_serialize(serialize):
-        """
-            (set_serialize): This method is a setter method. It sets the __serialize. 
-            Params:
-                self: An object that is apart of the constructor.
-        """
-        WinnerViewSet.__serialize = serialize
-
     
-    @staticmethod
-    def get_serialize():
-        """
-            (get_serialize): This is a getter method. 
-            Params: An object that is apart of the constructor which allows access to the attributes
-            Returns:
-                    self.__serialize
-        """
-        return WinnerViewSet.__serialize
-
 
     @staticmethod
     def get_queryset():
@@ -227,43 +169,49 @@ class WinnerViewSet(viewsets.ModelViewSet):
                 self: An object that is apart of the constructor which allows type mangling 
         """
         return Winner.objects.all()
+    
+    
 
-
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def start_game(request):
     """
         An Djagno api end point that shows the game has been started followed by the id
     """
+    history = {}
     try:
-        start_game_data = request.query_params.get('history', None)
-        if start_game_data is None:
-            return Response({"Game History": "No history data provided."}, status=status.HTTP_400_BAD_REQUEST)
-        # Parse the data into Json format 
-        start_game_data = json.loads(start_game_data)
         GameViewSet.create_game_table()
         if not Game.objects.exists():
-            Game.objects.create(history=start_game_data, current_move=0)
+            history["Game History"] = {}
+            Game.objects.create(history=history, current_move=0)
             Game.objects.create(game_id='001')
-        else:
-            game = Game.objects.get(game_id='001')
-            game.history.update(request.data)
-            game.current_move = 0
-            game.save() 
+        data = request.data
         match request.method:
+            case 'POST':
+                if data is None:
+                    return Response({"Game History": "No history data provided."}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    game = Game.objects.get(game_id='001')
+                    history["Game History"] = data
+                    game.history.update(history)
+                    game.current_move = 0
+                    game.save() 
             case 'GET':
-                try:
+                try:    
                     data = GameViewSet.get_queryset
                     serializer = GameSerializer(data, context={'request': request}, many=True)
                     GameViewSet.set_serialize = serializer
                 except Exception as e:
                     logging_init.log_entry[datetime.now().isoformat()] = f'from start_game {e}'
-        return Response({"Game History": request.data}, status=status.HTTP_200_OK)
+        game = Game.objects.get(game_id='001')
+        # Serialize the game instance
+        serializer = GameSerializer(game)
+        return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
         logging_init.log_entry[datetime.now().isoformat()] = f"Error starting game: {e}"
-        return Response({"Game History": request.data}, status=status.HTTP_200_OK)
+        return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
     
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def logging(request):
     """
         Logs the game events. Must launch it manually by issuing http://localhost:8000/polls/logging
@@ -272,37 +220,38 @@ def logging(request):
         - request: The HTTP request containing data to be logged.
     """
     try:
-        logging_game_data = request.data.get('logs', {})  # Retrieve the JSON data sent in the request
-        if (len(logging_game_data) > 0):
-             logging_init.log_entry.update(request.data)
         logging_init.create_logging_table()
-        # Create a new game instance
         if not Logging.objects.exists():
-            Logging.objects.create(logging_id='001')
-            Logging.objects.create(entries=request.data.get('log_history', {}))
-        else:
-            log = Logging.objects.get(logging_id='001')
-            log.entries.update(request.data)
-            log.save()
+            Logging.objects.create(logging_id='003')
+            Logging.objects.create(entries={})
+        data = request.data
         match request.method:
+            case 'POST':
+                if data is None:
+                    print("Something Happend!")
+                logging_init.log_entry.update(dict(data))
+                log = Logging.objects.get(logging_id='003')
+                log.entries.update(logging_init.log_entry)
+                log.save()
             case 'GET':
                 try:
-                    logging_init.rotate_logs()
                     serializer = LoggingSerializer(data=request.data)
-                    logging_init.set_serialize(serializer)
                     if serializer.is_valid():
                         serializer.save()
                 except Exception as e:
                     # Update the database to hold new data
                     logging_init.log_entry[datetime.now().isoformat()] = f'from  logging function: {e}'
-        return Response({"Log Entries": logging_init.log_entry}, status=status.HTTP_200_OK)
+        logging_init.rotate_logs() # Rotate the logs
+        log = Logging.objects.get(logging_id='003')
+        serializer = LoggingSerializer(log)
+        return Response({"Log Entries": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
         logging_init.log_entry[datetime.now().isoformat()] = f"Error starting game: {e}"
         return Response({"Log Entries": logging_init.log_entry}, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def winner(request):
     """
         Represents who won. Will launch once there is a winner
@@ -311,31 +260,29 @@ def winner(request):
         - request: The HTTP request containing data
     """
     try:
-        winner_game_data = request.data.get('winner_history', {})  # Retrieve the JSON data sent in the request
-        # Ensure the game table is created if not already
         WinnerViewSet.create_winner_table()
-        WinnerViewSet.create_winner_table()
-        # Create a new game instance
         if not Winner.objects.exists():
-            Winner.objects.create(winner_id='001')
-            Winner.objects.create(amount_of_times=winner_game_data.get('winner_history', {}))
-        else:
-            _winner = Winner.objects.get(winner_id='001')
-            _winner.amount_of_times.update(request.data)
-            _winner.save()
+            Winner.objects.create(winner_id='002')
+            Winner.objects.create(amount_of_times={})
+        data = request.data
         match request.method:
+            case 'POST':
+                if data is None:
+                    breakpoint()
+                    print("Something happend in the winner funciton")
+                _winner = Winner.objects.get(winner_id='002')
+                _winner.amount_of_times.update(request.data)
+                _winner.save()
             case 'GET':
                 try:
                     serializer = WinnerSerializer(data=request.data)
-                    WinnerViewSet.set_serialize = serializer
                     if serializer.is_valid():
                         serializer.save()
                 except Exception as e:
                     logging_init.log_entry[datetime.now().isoformat()] = f'from winner.html file POST method: {e}'
-        data = WinnerViewSet.get_queryset()
-        serializer = WinnerSerializer(data, context={'request': request}, many=True)
-        WinnerViewSet.set_serialize = serializer
-        return Response({"Winner Board": request.data}, status=status.HTTP_200_OK)
+        _winner = Winner.objects.get(winner_id='002')
+        serializer = WinnerSerializer(_winner)
+        return Response({"Winner Board": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
         logging_init.log_entry[datetime.now().isoformat()] = f"Error starting game: {e}"

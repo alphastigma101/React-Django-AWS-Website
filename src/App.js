@@ -32,28 +32,38 @@ export default function Game() {
    * Params:
       *  nextSquares: 
   */
+  console.log("Printing Logging data");
+  console.log(log);
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
     // Make a post request and send the history data to the Django API End Point
-    const sendHistory = async () => {
-      try {
+    const sendHistory = async (data) => {
+      /*try {
         // Check to see if EC2 is up and running
         const response  = await axios.post('http://52.41.13.5/polls/start_game', JSON.stringify(nextHistory));
         console.log('History updated successfully:', response.data);
       } catch(error) {
           logging(String(error));
-      }
+      }*/
       try {
         // Check to see if the app is running locally
-        const response = await axios.post('http://localhost:8000/polls/start_game', JSON.stringify(nextHistory));
+        const response = await axios.post('http://localhost:8000/polls/start_game', data);
         console.log('History updated successfully:', response.data);
       } catch(error) { 
         logging(String(error));
       }
     }
-    sendHistory();
+    console.log("Sending History data to Django API endpoint!");
+    console.log(nextHistory);
+    
+    // Check if nextHistory is not empty before sending it
+    if (nextHistory.length > 0) {
+      console.log("Sending History data to Django API endpoint!");
+      console.log(nextHistory);
+      sendHistory(nextHistory);
+    }
   }
   /*
    * (jumpTo): Is a private function of Game Function
@@ -97,24 +107,28 @@ export default function Game() {
         'X': X,
         'O': O
     };
-    const sendWinnerBoard = async () => {
-      try {
+    const sendWinnerBoard = async (data) => {
+      /*try {
           // Check to see if EC2 is up and running
           const response  = await axios.post('http://52.41.13.5/polls/winner', JSON.stringify(winnerBoard));
           console.log('Winner Board has been updated successfully:', response.data);
         } catch(error) {
          logging(String(error)); 
-      }
+      }*/
       try {
         // Check to see if the app is running locally
-        const response = await axios.post('http://localhost:8000/polls/winner', JSON.stringify(winnerBoard));
+        const response = await axios.post('http://localhost:8000/polls/winner', data);
         console.log('Winner Board has been updated successfully:', response.data);
       } catch(error) { 
         logging(String(error));
       }
     }
-    console.log("Calling sendWinnerBoard function!");
-    sendWinnerBoard();
+    // Check if nextHistory is not empty before sending it
+    if (winnerBoard.length > 0) {
+      console.log("Sending Winner data to Django API endpoint!");
+      console.log("Calling sendWinnerBoard function!");
+      sendWinnerBoard(winnerBoard);
+    }
   }
   /* 
    * (logging): This is a private method. Set the React component called setLog if it is not set 
@@ -133,8 +147,8 @@ export default function Game() {
         }));
       }
     }
-    const sendLogging = async () => {
-      try {
+    const sendLogging = async (data) => {
+      /*try {
         // Check to see if EC2 is up and running
         const response  = await axios.post('http://52.41.13.5/polls/logging', JSON.stringify(log));
         console.log('Logging has been updated successfully:', response.data);
@@ -146,10 +160,10 @@ export default function Game() {
             time: String(error)
           }));
         }
-      }
+      }*/
       try {
         // Check to see if the app is running locally
-        const response = await axios.post('http://localhost:8000/polls/logging', JSON.stringify(log));
+        const response = await axios.post('http://localhost:8000/polls/logging', data);
         console.log('Logging updated successfully:', response.data);
       } catch(error) { 
         if (!log[time]) {
@@ -161,7 +175,12 @@ export default function Game() {
         }
       }
     }
-    sendLogging();
+    // Check if nextHistory is not empty before sending it
+    if (log.length > 0) {
+      console.log("Sending Logging data to Django API endpoint!");
+      console.log(log);
+      sendLogging(log);
+    }
   }
   // Render the game which will call the Board function
   return (
