@@ -101,10 +101,10 @@ export default function Game() {
   if (Winner(winner)) {
     if (winner === 'X') { 
       console.log("X has won!");
-      X += 1;
+      X += 1 - 1; // BUG: X is duplicating itself for some reason 
     }
     else {
-      O += 1 - 1;
+      O += 1;
     }
     const winnerBoard = {
         'X': X,
@@ -151,7 +151,7 @@ export default function Game() {
       if (!log[time]) {
         // If a Log entry already exist, then add the new entry behind it
         setLog(prevLog => ({
-          ...prevLog, 
+          ...prevLog, // points to the previous element 
           [time]: error
         }));
       }

@@ -1,7 +1,6 @@
 from django.db import connection, DatabaseError
 from django.core.management import call_command
 from django.db import migrations
-import json
 from .models import Game, Logging, Winner
 from .serializers import GameSerializer, LoggingSerializer, WinnerSerializer
 from rest_framework import viewsets, status
@@ -33,8 +32,8 @@ class LoggingViewSet(viewsets.ViewSet):
         current_time = datetime.now()
         for timestamp_str in list(self.log_entry.keys()):
             timestamp = datetime.fromisoformat(timestamp_str)
-            hours_diff = (current_time - timestamp).total_seconds() / 3600
-            if hours_diff >= 3:
+            hours_diff = (current_time - timestamp).total_seconds() / 60
+            if hours_diff >= 1:
                 del self.log_entry[timestamp_str]
 
     def create_logging_table(self):
@@ -79,6 +78,7 @@ class GameViewSet(viewsets.ModelViewSet):
             cls._instance = super().__new__(cls)
         return cls._instance
 
+    
     @staticmethod 
     def create_game_table():
         """
@@ -175,7 +175,7 @@ class WinnerViewSet(viewsets.ModelViewSet):
 @api_view(['GET', 'POST'])
 def start_game(request):
     """
-        An Djagno api end point that shows the game has been started followed by the id
+        A Djagno api end point that shows the game has been started followed by the id
     """
     history = {}
     try:
@@ -192,7 +192,7 @@ def start_game(request):
                 else:
                     game = Game.objects.get(game_id='001')
                     history["Game History"] = data
-                    game.history.update(history)
+                    game.history = history # This should avoid duplicated entries 
                     game.current_move = 0
                     game.save() 
             case 'GET':
@@ -234,6 +234,7 @@ def logging(request):
                 log.entries.update(logging_init.log_entry)
                 log.save()
             case 'GET':
+                # GET method is probably needed because if the developer refreshes the page, it will keep it up to date
                 try:
                     serializer = LoggingSerializer(data=request.data)
                     if serializer.is_valid():
@@ -268,7 +269,7 @@ def winner(request):
         match request.method:
             case 'POST':
                 if data is None:
-                    breakpoint()
+                    # Add a return statement here after merging everything in main: July 16th, 2024
                     print("Something happend in the winner funciton")
                 _winner = Winner.objects.get(winner_id='002')
                 _winner.amount_of_times.update(request.data)
@@ -281,7 +282,7 @@ def winner(request):
                 except Exception as e:
                     logging_init.log_entry[datetime.now().isoformat()] = f'from winner.html file POST method: {e}'
         _winner = Winner.objects.get(winner_id='002')
-        serializer = WinnerSerializer(_winner)
+        serializer = WinnerSerializer(_winner) # always serialize your data as it won't work if you tried displaying it in the Django's api
         return Response({"Winner Board": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
