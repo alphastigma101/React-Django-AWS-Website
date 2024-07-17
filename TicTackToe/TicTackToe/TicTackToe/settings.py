@@ -51,7 +51,6 @@ MIDDLEWARE = [
 # Need to also add the static webpage 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'http://react-tictacktoe.s3-website-us-west-2.amazonaws.com/',
 ]
 
 ROOT_URLCONF = 'TicTackToe.urls'
