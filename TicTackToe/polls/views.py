@@ -6,7 +6,7 @@ from .serializers import GameSerializer, LoggingSerializer, WinnerSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class LoggingViewSet(viewsets.ViewSet):
@@ -35,6 +35,11 @@ class LoggingViewSet(viewsets.ViewSet):
             hours_diff = (current_time - timestamp).total_seconds() / 60
             if hours_diff >= 1:
                 del self.log_entry[timestamp_str]
+            values = tuple(self.log_entry.values()) # Make a tuple
+            if (values.count(self.log_entry.get(timestamp_str)) > 1):
+                # If there is more than the same value, remove it 
+                del self.log_entry[timestamp_str]
+
 
     def create_logging_table(self):
         """
@@ -178,6 +183,7 @@ def start_game(request):
         A Djagno api end point that shows the game has been started followed by the id
     """
     history = {}
+    serializer = None
     try:
         GameViewSet.create_game_table()
         if not Game.objects.exists():
@@ -229,16 +235,18 @@ def logging(request):
             case 'POST':
                 if data is None:
                     print("Something Happend!")
-                logging_init.log_entry.update(dict(data))
-                log = Logging.objects.get(logging_id='003')
-                log.entries.update(logging_init.log_entry)
-                log.save()
+                temp_dict = dict(data)
+                for key, value in temp_dict.items():
+                    timestamp = datetime.fromisoformat(key.replace("Z", "+00:00")).astimezone(timezone.utc)
+                    logging_init.log_entry[timestamp.isoformat()] = value               
             case 'GET':
                 # GET method is probably needed because if the developer refreshes the page, it will keep it up to date
                 try:
-                    serializer = LoggingSerializer(data=request.data)
-                    if serializer.is_valid():
-                        serializer.save()
+                    logging_init.rotate_logs() # Rotate the logs if it is a GET request 
+                    serializer = LoggingSerializer(data=logging_init.log_entry) # serialize it
+                    if serializer.is_valid(): 
+                        serializer.save() # Save it 
+                        return Response({"Log Entries": serializer.data}, status=status.HTTP_200_OK)
                 except Exception as e:
                     # Update the database to hold new data
                     logging_init.log_entry[datetime.now().isoformat()] = f'from  logging function: {e}'

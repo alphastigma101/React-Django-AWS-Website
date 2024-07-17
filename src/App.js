@@ -98,10 +98,10 @@ export default function Game() {
   }
 
   const winner = calculateWinner(currentSquares);
-  if (Winner(winner)) {
+  if (winner != null) {
     if (winner === 'X') { 
       console.log("X has won!");
-      X += 1 - 1; // BUG: X is duplicating itself for some reason 
+      X += 1 - 1;
     }
     else {
       O += 1;
@@ -144,9 +144,9 @@ export default function Game() {
    *
   */
   function logging(error) {
-    const time = Date.now().toString();
+    const time = new Date().toISOString();
     if (Object.keys(log).length === 0 && log.constructor === Object) {
-      setLog({time: error});
+      setLog({ [time]: error});
     } else {
       if (!log[time]) {
         // If a Log entry already exist, then add the new entry behind it
@@ -168,7 +168,7 @@ export default function Game() {
             // If a Log entry already exist, then add the new entry behind it
             setLog(prevLog => ({
               ...prevLog, 
-              time: String(error)
+              [time]: error
             }));
           }
         }
@@ -205,7 +205,7 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <div className="status">{Winner(winner) ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`}</div>
+        <div className="status">{winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`}</div>
         <ol>{moves}</ol>
       </div>
     </div>
@@ -271,8 +271,3 @@ function calculateWinner(squares) {
   }
   return null;
 }
-
-function Winner(winner) {
-  return winner != null;
-}
-
