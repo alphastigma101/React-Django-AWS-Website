@@ -3,7 +3,7 @@
 
 2. [System Requirements And Software](#system-requirements-and-software)
 
-3. [Running The App](#running-the-app-automatically-or-manually)
+3. [Running The App](#running-the-app-automatically-or-manually-automatically-or-manually)
 
 4. [Sources](#sources)
 
@@ -60,6 +60,15 @@
 * **React Component Examples**
     * *https://legacy.reactjs.org/docs/components-and-props.html*
     * *https://react.dev/reference/react/useState#adding-state-to-a-component*
+
+
+
+### Configuring React App For AWS (Front-End)
+* In order to deploy your app, you need to run `npm run build` which will build the `index.html` file. 
+* To set up your react on the front end, you will use **S3** which is a bucket, you need to also enable **static web hosting** once you're done creating the bucket, and set policies for it.
+* Here is my app product link: *http://react-tictacktoe.s3-website-us-west-2.amazonaws.com/*
+
+### 
 
 
 

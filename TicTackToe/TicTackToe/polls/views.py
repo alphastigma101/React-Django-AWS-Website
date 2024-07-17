@@ -217,7 +217,6 @@ def start_game(request):
         logging_init.log_entry[datetime.now().isoformat()] = f"Error starting game: {e}"
         return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
     
-
 @api_view(['GET','POST'])
 def logging(request):
     """
