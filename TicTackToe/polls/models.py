@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Game(models.Model):
     '''
         A class that represents entities for the ticktacktoe_game table
@@ -16,6 +17,9 @@ class Game(models.Model):
         '''
         app_label = 'ticktacktoe'
 
+
+
+# Could add references keys, (FKs) later on, but for now, I am using Primary keys for every model
 class Winner(models.Model):
     '''
         A class that represents entities for ticktacktoe_winner table
@@ -26,6 +30,7 @@ class Winner(models.Model):
 
     class Meta:
         app_label = 'ticktacktoe'
+
 
 class Logging(models.Model):
     '''

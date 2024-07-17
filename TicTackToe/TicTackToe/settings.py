@@ -21,7 +21,7 @@ SECRET_KEY = 'django-insecure-zm!xm@g*k*#1hn69lvsmfjuj5foc42vmgo0kai8k!j9bpcorm5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -47,7 +47,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-
+# Need to also add the static webpage 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 
 ROOT_URLCONF = 'TicTackToe.urls'
 
