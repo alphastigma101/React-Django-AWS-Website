@@ -371,7 +371,6 @@ def logging(request):
         Parameters:
         - request: The HTTP request containing data to be logged.
     """
-    breakpoint()
     try:
         logging_init.create_logging_table()
         if not Logging.objects.exists():
