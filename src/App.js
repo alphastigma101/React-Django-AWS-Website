@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 // Create objects that do not need to be a component
 let X = 0;
 let O = 0;
-const remote = 0;
+const remote = 1;
 /*
  * (Game): This is driver function for my react app. It starts the game up.
  * Params:

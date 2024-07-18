@@ -315,7 +315,11 @@ def start_game(request):
                 try:
                     game = Game.objects.get(game_id='001')
                     serializer = GameSerializer(game) # serialize the data
-                    game.history[str(GameViewSet.get_new_game(None))].update(history)
+                    try:
+                        game.history[str(GameViewSet.get_new_game(None))].update(history)
+                    except Exception as e:
+                        history[GameViewSet.get_new_game(None)] = data
+                        game.history[str(GameViewSet.get_new_game(None))] = history # Add the new game that was started
                     game.save()
                     return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
                 except Exception as e:
@@ -367,6 +371,7 @@ def logging(request):
         Parameters:
         - request: The HTTP request containing data to be logged.
     """
+    breakpoint()
     try:
         logging_init.create_logging_table()
         if not Logging.objects.exists():
