@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 // Create objects that do not need to be a component
 let X = 0;
 let O = 0;
-const remote = 1;
+const remote = 0;
+
 /*
  * (Game): This is driver function for my react app. It starts the game up.
  * Params:
@@ -43,30 +44,18 @@ export default function Game() {
           // Check to see if EC2 is up and running
           const response  = await axios.post('http://52.41.13.5/polls/start_game', JSON.stringify(nextHistory));
           console.log('History updated successfully:', response.data);
-        } catch(error) {
-            logging(String(error));
-        }
+        } catch(error) {logging(String(error));}
       }
       else {
         try {
           // Check to see if the app is running locally
           const response = await axios.post('http://localhost:8000/polls/start_game', data);
           console.log('History updated successfully:', response.data);
-        } catch(error) { 
-            logging(String(error));
-          }
-        }
-    }
-    console.log("Sending History data to Django API endpoint!");
-    logging("Testing to see if the logging api is working. If you see this, it is working as excepted.");
-    console.log(nextHistory);
-    
+        } catch(error) {logging(String(error));}
+      }
+    } 
     // Check if nextHistory is not empty before sending it
-    if (nextHistory.length > 0) {
-      console.log("Sending History data to Django API endpoint!");
-      console.log(nextHistory);
-      sendHistory(nextHistory);
-    }
+    if (nextHistory.length > 0) { sendHistory(nextHistory); }
   }
   /*
    * (jumpTo): Is a private function of Game Function
@@ -74,9 +63,7 @@ export default function Game() {
       * nextMove: Determines who's turn it is 
    *
   */
-  function jumpTo(nextMove) {
-    setCurrentMove(nextMove);
-  }
+  function jumpTo(nextMove) { setCurrentMove(nextMove); }
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
   const moves = history.map((squares, move) => {
@@ -89,6 +76,7 @@ export default function Game() {
   });
 
   function handleClick(i) {
+    console.log("(handleClick(i)): Is getting executed!")
     if (calculateWinner(currentSquares) || currentSquares[i]) {
       return;
     }
@@ -100,36 +88,31 @@ export default function Game() {
   const winner = calculateWinner(currentSquares);
   if (winner != null) {
     if (winner === 'X') { 
-      console.log("X has won!");
-      X += 1 - 1;
+      X = X + 1;
     }
     else {
-      O += 1;
+      O = O + 1;
     }
     const winnerBoard = {
-        'X': X,
-        'O': O
+      'X': X,
+      'O': O
     }
+    console.log("Board Values are:")
+    console.log(winnerBoard);
     const sendWinnerBoard = async (data) => {
       if (remote === 1) {
         try {
-            // Check to see if EC2 is up and running
-            const response  = await axios.post('http://52.41.13.5/polls/winner', JSON.stringify(winnerBoard));
-            console.log('Winner Board has been updated successfully:', response.data);
+          // Check to see if EC2 is up and running
+          const response  = await axios.post('http://52.41.13.5/polls/winner', JSON.stringify(winnerBoard));
         } 
-        catch(error) {
-          logging(String(error)); 
-        }
+        catch(error) {logging(String(error));}
       }
       else {
         try {
           // Check to see if the app is running locally
           const response = await axios.post('http://localhost:8000/polls/winner', data);
-          console.log('Winner Board has been updated successfully:', response.data);
         } 
-        catch(error) { 
-          logging(String(error));
-        }
+        catch(error) {logging(String(error));}
       }
     }
     // Check if nextHistory is not empty before sending it
@@ -145,9 +128,10 @@ export default function Game() {
   */
   function logging(error) {
     const time = new Date().toISOString();
-    if (Object.keys(log).length === 0 && log.constructor === Object) {
-      setLog({ [time]: error});
-    } else {
+    if (Object.keys(log).length === 0 && log.constructor === Object) { 
+      setLog({ [time]: error}); 
+    } 
+    else {
       if (!log[time]) {
         // If a Log entry already exist, then add the new entry behind it
         setLog(prevLog => ({
@@ -161,7 +145,6 @@ export default function Game() {
         try {
           // Check to see if EC2 is up and running
           const response  = await axios.post('http://52.41.13.5/polls/logging', JSON.stringify(log));
-          console.log('Logging has been updated successfully:', response.data);
         } 
         catch(error) {
           if (!log[time]) {
@@ -177,44 +160,42 @@ export default function Game() {
         try {
           // Check to see if the app is running locally
           const response = await axios.post('http://localhost:8000/polls/logging', data);
-          console.log('Logging updated successfully:', response.data);
         } 
         catch(error) { 
           if (!log[time]) {
             // If a Log entry already exist, then add the new entry behind it
             setLog(prevLog => ({
               ...prevLog, 
-              [time]: String(error)
+              [time]: error
             }));
           }
         }
       }
     }
     // Check if log is empty is not empty before sending it
-    if (Object.keys(log).length > 0) {
-      console.log("Sending Logging data to Django API endpoint!");
-      console.log(log);
-      sendLogging(log);
-    }
+    if (Object.keys(log).length > 0) { sendLogging(log); }
     // NOTE: Always attach an else statement to double check and see if the if statement expression is working as intended 
-  }
-  // Render the game which will call the Board function
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+    // Render the game which will call the Board function
+    return (
+      <div className="game">
+        <div className="game-board">
+          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        </div>
+        <div className="game-info">
+          <div className="status">{winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`}</div>
+          <ol>{moves}</ol>
+        </div>
       </div>
-      <div className="game-info">
-        <div className="status">{winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`}</div>
-        <ol>{moves}</ol>
-      </div>
-    </div>
-  );
+    );
+  }  
 }
+
 
 function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
+    console.log("(handleClick(i)): Is getting executed!")
     if (calculateWinner(squares) || squares[i]) {
+
       return;
     }
     const nextSquares = [...squares];

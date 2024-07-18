@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 class Game(models.Model):
     '''
         A class that represents entities for the ticktacktoe_game table

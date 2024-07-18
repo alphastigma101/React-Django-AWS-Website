@@ -11,8 +11,8 @@ import traceback, inspect # Use this to print out the line where the exception o
 from .validation import Validation
 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def format_message(File:str, Line:str, Function:str, Code:str, Error:str) -> dict:
-    return {File:Line, Function:Code, "Error":Error}
+
+
 
 class LoggingViewSet(viewsets.ViewSet, Validation):
     '''
@@ -41,13 +41,12 @@ class LoggingViewSet(viewsets.ViewSet, Validation):
             hours_diff = (datetime.fromisoformat(current_time) - timestamp).total_seconds() / 60
             if hours_diff >= 1:
                 del self.log_entry[timestamp_str]
-        #values = tuple(self.log_entry.values()) # Make a tuple
-        #for index, (key, value) in enumerate(values):
-            #if values.count(value) > 1:
-                # If there is more than one occurrence of the same value, remove it
-                #del self.log_entry[index]
-            #elif values.count(key) > 1:
-                #del self.log_entry[index]
+            #breakpoint()
+            print("Checking to see if the logs will delete duplicated entries (Last)")
+            values = tuple(self.log_entry.values()) # Make a tuple
+            if (values.count(self.log_entry.get(timestamp_str)) > 1):
+                # If there is more than the same value, remove it 
+                del self.log_entry[timestamp_str]
 
 
     def create_logging_table(self):
@@ -71,13 +70,7 @@ class LoggingViewSet(viewsets.ViewSet, Validation):
             line_number = frame.f_back.f_lineno 
             funcname = frame.f_trace
             code = frame.f_code
-            text = format_message(
-                                  f"{filename}", 
-                                  f"{line_number}", 
-                                  f"{funcname}", 
-                                  f"{code}", 
-                                  f"{e}"
-                                 )
+            text = f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Error: {e}"
             self.log_entry[current_time] = text
 
     def get_queryset(self):
@@ -131,13 +124,7 @@ class GameViewSet(viewsets.ModelViewSet,  Validation):
             line_number = frame.f_back.f_lineno 
             funcname = frame.f_trace
             code = frame.f_code
-            logging_init.log_entry[current_time] = format_message(
-                                                                  f"{filename}",
-                                                                  f"{line_number}", 
-                                                                  f"{funcname}",
-                                                                  f"{code}",
-                                                                  f"{e}"
-                                                                 )
+            logging_init.log_entry[current_time] = f"File: {filename}\n, Line: {line_number}\n, Function: {funcname}\n, Code: {code}\n"
 
     @staticmethod 
     def set_new_game(value:int) -> None:
@@ -211,23 +198,17 @@ class WinnerViewSet(viewsets.ModelViewSet, Validation):
             line_number = frame.f_back.f_lineno 
             funcname = frame.f_trace
             code = frame.f_code
-            text = format_message(
-                                    f"{filename}", 
-                                    f"{line_number}", 
-                                    f"{funcname}", 
-                                    f"{code}", 
-                                    f"{e}"
-                                 )
+            text = f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Error: {e}\n"
             logging_init.log_entry[current_time] = text
     
     @staticmethod 
     def set_new_score_board(value:int) -> None:
-        WinnerViewSet.__new_board = value
+        WinnerViewSet.__new_board += value
 
     
     @staticmethod
     def get_new_score_board(value:int) -> int:
-        return WinnerViewSet.__new_board
+        return int(WinnerViewSet.__new_board)
 
 
     @staticmethod
@@ -262,17 +243,7 @@ def start_game(request):
                     line_number = frame.f_back.f_lineno 
                     funcname = frame.f_trace
                     code = frame.f_code
-                    return Response(
-                            {
-                                "Game History": 
-                                    format_message(
-                                                    f"{filename}", 
-                                                    f"{line_number}", 
-                                                    f"{funcname}", 
-                                                    f"{code}", 
-                                                    f"Object is {data}"
-                                                  )
-                            }, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"Game History": f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Object is: {data}\n"}, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     game = Game.objects.get(game_id='001')
                     check = GameViewSet.validate_2d_array(data) # Validate the data without actually using the serialization.py modules 
@@ -280,13 +251,13 @@ def start_game(request):
                         if (check is True):
                             # Check and see if the react app refreshed itself 
                             if (GameViewSet.get_new_game(None) > GameViewSet.get_prev_game_value()):
-                                history[GameViewSet.get_new_game(None)] = data
-                                GameViewSet.set_prev_game_value(GameViewSet.get_new_game(None) + 1) # Increment it by one so this field won't get executed until the user refreshes the front end page
-                                game.history[str(GameViewSet.get_new_game(None))] = history # Add the new game that was started
+                                history[f"Game History {GameViewSet.get_new_game}"] = data
+                                GameViewSet.set_prev_game(GameViewSet.get_new_game(None) + 1) # Increment it by one so this field won't get executed until the user refreshes the front end page
+                                game.history[GameViewSet.get_new_game] = history # Add the new game that was started
                                 game.current_move = 0
                                 game.save() # Save the data
                             else:
-                                game.history[GameViewSet.get_new_game(None)].update(data) # Index into the correct dictionary field
+                                game.history[GameViewSet.get_new_game].update(data) # Index into the correct dictionary field
                                 game.current_move += 1 
                                 game.save() 
                         else: 
@@ -299,18 +270,15 @@ def start_game(request):
                         line_number = frame.f_back.f_lineno 
                         funcname = frame.f_trace
                         code = frame.f_code
-                        logging_init.log_entry[current_time] = format_message(  
-                                                                                f"{filename}", 
-                                                                                f"{line_number}", 
-                                                                                f"{funcname}", 
-                                                                                f"{code}", 
-                                                                                f"{e}"
-                                                                             ) 
+                        logging_init.log_entry[current_time] = f"File: {filename} \n Line: {line_number} \n Function: {funcname} \n Code: {code} \n Error: {e} \n" 
             case 'GET':
                 try:
+                    breakpoint()
+                    print("Making sure that the data will be sent to the api (Second)")
                     game = Game.objects.get(game_id='001')
+                    game.history.update(history)
                     serializer = GameSerializer(game) # serialize the data
-                    game.history[str(GameViewSet.get_new_game(None))].update(history)
+                    game.history.update(history)
                     game.save()
                     return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
                 except Exception as e:
@@ -319,20 +287,15 @@ def start_game(request):
                     line_number = frame.f_back.f_lineno 
                     funcname = frame.f_trace
                     code = frame.f_code
-                    logging_init.log_entry[current_time] = format_message(
-                                                                            f"{filename}", 
-                                                                            f"{line_number}", 
-                                                                            f"{funcname}", 
-                                                                            f"{code}", 
-                                                                            f"{e}"
-                                                                         )
+                    logging_init.log_entry[current_time] = f"File: {filename} \n Line: {line_number} \n Function: {funcname} \n Code: {code} \n Error: {e} \n"
                     log = Logging.objects.get(logging_id='003')
                     serializer = LoggingSerializer(log)
                     return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
+        breakpoint()
         game = Game.objects.get(game_id='001')
         # Serialize the game instance
         serializer = GameSerializer(game)
-        game.history[str(GameViewSet.get_new_game(None))].update(history)
+        game.history.update(history)
         game.save()
         return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
@@ -342,13 +305,7 @@ def start_game(request):
         line_number = frame.f_back.f_lineno 
         funcname = frame.f_trace
         code = frame.f_code
-        logging_init.log_entry[current_time] = format_message(
-                                                               f"{filename}",
-                                                               f"{line_number}", 
-                                                               f"{funcname}", 
-                                                               f"{code}",
-                                                               f"{e}"
-                                                             )
+        logging_init.log_entry[current_time] = f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Error: {e}\n"
         log = Logging.objects.get(logging_id='003') # Serialiing is needed because everything needs to be json serialized 
         serializer = LoggingSerializer(log)
         return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
@@ -376,17 +333,7 @@ def logging(request):
                     line_number = frame.f_back.f_lineno 
                     funcname = frame.f_trace
                     code = frame.f_code
-                    return Response(
-                                    {
-                                        "Log History": 
-                                            format_message(
-                                                            f"{filename}", 
-                                                            f"{line_number}", 
-                                                            f"{funcname}", 
-                                                            f"{code}",
-                                                            f"Object is {data}"
-                                                          )
-                                    }, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"Log History": f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Object is: {data}\n"}, status=status.HTTP_400_BAD_REQUEST)
                 check = logging_init.is_dictionary(data)
                 if (check is True):
                     # Check to see if the data coming from react app is a dictionary 
@@ -404,23 +351,14 @@ def logging(request):
                                 line_number = frame.f_back.f_lineno 
                                 funcname = frame.f_trace
                                 code = frame.f_code
-                                logging_init.log_entry[timestamp] = format_message(
-                                                                                    f"{filename}", 
-                                                                                    f"{line_number}", 
-                                                                                    f"{funcname}",
-                                                                                    f"{code}", 
-                                                                                    f"Error parsing timestamp with fallback: {e}"
-                                                                                  )
-                    
-                    z_timestamp = list(data.keys())
+                                logging_init.log_entry[timestamp] = f"Error parsing timestamp with fallback format: {e2}\nFile: {filename}\nLine: {line_number}\nFunction: {funcname}\nCode: {code}\n Error: {e}"
                     for key, value in logging_init.refreshed.items():
-                        timestamp = datetime.fromisoformat(z_timestamp[0].replace("Z", "")) # Format it in isoformat
                         iso_conv = datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
                         diff = (iso_conv - timestamp).total_seconds()
                         if (diff < 0):
                             # Game was refreshed 
                             GameViewSet.set_new_game(1)
-                            GameViewSet.set_prev_game_value(1 - GameViewSet.get_new_game(None))
+                            GameViewSet.set_prev_game(1 - GameViewSet.get_new_game(None))
                         logging_init.log_entry[timestamp.strftime("%Y-%m-%d %H:%M:%S")] = value
                     ####
                     # Add more here later on July 17th, 2024
@@ -442,13 +380,7 @@ def logging(request):
                     line_number = frame.f_back.f_lineno 
                     funcname = frame.f_trace
                     code = frame.f_code
-                    logging_init.log_entry[current_time] = format_message(
-                                                                            f"{filename}",
-                                                                            f"{line_number}", 
-                                                                            f"{funcname}", 
-                                                                            f"{code}", 
-                                                                            f"{e}"
-                                                                         )
+                    logging_init.log_entry[current_time] = f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Error: {e}\n"
                     log = Logging.objects.get(logging_id='003')
                     log.entries.update(logging_init.log_entry)
                     serializer = LoggingSerializer(log)
@@ -467,14 +399,12 @@ def logging(request):
         line_number = frame.f_back.f_lineno 
         funcname = frame.f_trace
         code = frame.f_code
-        logging_init.log_entry[current_time] = format_message(
-                                                                f"{filename}",
-                                                                f"{line_number}", 
-                                                                f"{funcname}",
-                                                                f"{code}",
-                                                                f"{e}"
-                                                             )
-        return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
+        logging_init.log_entry[current_time] = f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Error: {e}\n"
+        log = Logging.objects.get(logging_id='003') # Serialiing is needed because everything needs to be json serialized 
+        log.entries.update(logging_init.log_entry)
+        serializer = LoggingSerializer(log)
+        log.save()
+        return Response({"Log History": serializer.data}, status=status.HTTP_200_OK)
 
 
 
@@ -486,6 +416,7 @@ def winner(request):
         Parameters:
         - request: The HTTP request containing data
     """
+    history = {}
     try:
         WinnerViewSet.create_winner_table()
         if not Winner.objects.exists():
@@ -502,15 +433,16 @@ def winner(request):
                     code = frame.f_code
                 check = WinnerViewSet.is_dictionary(data)
                 if (check is True):
-                    if (GameViewSet.get_new_game(None) > GameViewSet.get_prev_game_value()):
-                        WinnerViewSet.set_new_score_board(WinnerViewSet.get_new_score_board(None) + 1)
+                    if (GameViewSet.get_new_game(None) > GameViewSet.get_prev_game()):
+                        WinnerViewSet.set_new_score_board(WinnderViewSet.get_new_score_board(None) + 1)
                         # New game was started
-                        _winner = Winner.objects.get(winner_id='002')
-                        _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))] = data
+                        history[f"Winner History {WinnerViewSet.get_score_board}"] = data
+                        _winner = Winner.objects.get(winnner_id='002')
+                        _winner.amount_of_times[WinnerViewSet.set_new_score_board] = history
                         _winner.save()
                     else:
                         _winner = Winner.objects.get(winner_id='002')
-                        _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))].update(data)
+                        _winner.amount_of_times.update(request.data)
                         _winner.save()
                 else:
                     ## 
@@ -521,7 +453,7 @@ def winner(request):
                 try:
                     logging_init.rotate_logs()
                     _winner = Winner.objects.get(winner_id='002')
-                    _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))].update(data)
+                    _winner.amount_of_times.update(data)
                     serializer = WinnerSerializer(_winner)
                     _winner.save()
                     return Response({"Winner Board": serializer.data}, status=status.HTTP_200_OK)
@@ -531,15 +463,9 @@ def winner(request):
                     line_number = frame.f_back.f_lineno 
                     funcname = frame.f_trace
                     code = frame.f_code
-                    logging_init.log_entry[current_time] = format_message(
-                                                                            f"{filename}", 
-                                                                            f"{line_number}", 
-                                                                            f"{funcname}",
-                                                                            f"{code}", 
-                                                                            f"{e}"
-                                                                         )
+                    logging_init.log_entry[current_time] = f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Error: {e}\n"
         _winner = Winner.objects.get(winner_id='002')
-        _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))].update(data)
+        _winner.amount_of_entries.update(data)
         serializer = WinnerSerializer(_winner) # always serialize your data as it won't work if you tried displaying it in the Django's api
         _winner.save()
         return Response({"Winner Board": serializer.data}, status=status.HTTP_200_OK)
@@ -552,11 +478,5 @@ def winner(request):
         code = frame.f_code
         log = Logging.objects.get(logging_id='003') # Serialiing is needed because everything needs to be json serialized 
         serializer = LoggingSerializer(log)
-        logging_init.log_entry[current_time] = format_message(
-                                                                f"{filename}", 
-                                                                f"{line_number}", 
-                                                                f"{funcname}", 
-                                                                f"{code}", 
-                                                                f"{e}"
-                                                             )
+        logging_init.log_entry[current_time] = f"File: {filename}\n Line: {line_number}\n Function: {funcname}\n Code: {code}\n Error: {e}\n"
         return Response({"Log History": serializer.data}, status=status.HTTP_200_OK)

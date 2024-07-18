@@ -12,7 +12,7 @@ class GameSerializer(serializers.ModelSerializer):
             A class that stores metadata about the GameSerializer class
         '''
         model = Game
-        fields = '__all__'
+        fields = ['game_id', 'history']
 
 
 class LoggingSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class LoggingSerializer(serializers.ModelSerializer):
             A class that stores metadata about the LoggingSerializer class
         '''
         model = Logging
-        fields = '__all__'
+        fields = ['logging_id', 'entries']
 
 
 
@@ -37,5 +37,5 @@ class WinnerSerializer(serializers.ModelSerializer):
             A class that stores metadata about the LoggingSerializer class
         '''
         model = Winner
-        fields = '__all__'
+        fields = ['winner_id', 'amount_of_times']
 
