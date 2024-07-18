@@ -19,7 +19,14 @@ export default function Game() {
   const [currentMove, setCurrentMove] = useState(0);
   const [log, setLog] = useState({});
   const [loggingCreated, setLoggingCreated] = useState(false);
-
+  const [winnerHandled, setWinnerHandled] = useState(false);
+  
+  // Create the winner board
+  const winnerBoard = {
+    'X': X,
+    'O': O
+  }
+  
   // Mount the react component to record logging for it 
   useEffect(() => {
     if (!loggingCreated) {
@@ -53,17 +60,11 @@ export default function Game() {
           const response = await axios.post('http://localhost:8000/polls/start_game', data);
           console.log('History updated successfully:', response.data);
         } 
-        catch(error) { 
-          logging(String(error));
-        }
+        catch(error) { logging(String(error)); }
       }
     } 
     // Check if nextHistory is not empty before sending it
-    if (nextHistory.length > 0) {
-      console.log("Sending History data to Django API endpoint!");
-      console.log(nextHistory);
-      sendHistory(nextHistory);
-    }
+    if (nextHistory.length > 0) { sendHistory(nextHistory); }
   }
   /*
    * (jumpTo): Is a private function of Game Function
@@ -71,11 +72,26 @@ export default function Game() {
       * nextMove: Determines who's turn it is 
    *
   */
-  function jumpTo(nextMove) {
-    setCurrentMove(nextMove);
-  }
+  function jumpTo(nextMove) { setCurrentMove(nextMove);}
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
+  
+  useEffect(() => {
+    const winner = calculateWinner(currentSquares);
+    if (winner != null && !winnerHandled) {
+      handleWinner(winner);
+      setWinnerHandled(true);
+    }
+  }, [currentSquares, winnerHandled]);
+
+  function handleWinner(winner) {
+    if (winner === 'X') {
+      X += 1;
+    } 
+    else {
+      O += 1;
+    }
+  }
   const moves = history.map((squares, move) => {
     const description = move > 0 ? `Go to move #${move}` : 'Go to game start';
     return (
@@ -99,19 +115,7 @@ export default function Game() {
     handlePlay(nextSquares);
   }
 
-  const winner = calculateWinner(currentSquares);
-  if (winner != null) {
-    if (winner === 'X') { 
-      console.log("X has won!");
-      X += 1;
-    }
-    else {
-      O += 1;
-    }
-    const winnerBoard = {
-        'X': X,
-        'O': O
-    }
+  if (winnerHandled === true) {
     const sendWinnerBoard = async (data) => {
       if (remote === 1) {
         try {
@@ -126,17 +130,17 @@ export default function Game() {
         try {
           // Check to see if the app is running locally
           const response = await axios.post('http://localhost:8000/polls/winner', data);
-          console.log('Winner Board has been updated successfully:', response.data);
+        
         } 
-        catch(error) { 
-          logging(String(error));
-        }
+        catch(error) {  logging(String(error)); }
       }
     }
     // Check if nextHistory is not empty before sending it
     if (Object.keys(winnerBoard).length > 0) {
       console.log("Sending Winner data to Django API endpoint!");
       console.log("Calling sendWinnerBoard function!");
+      setWinnerHandled(false);
+      console.log(winnerBoard);
       sendWinnerBoard(winnerBoard);
     }
   }
@@ -200,7 +204,7 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className="game-info">
-        <div className="status">{winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`}</div>
+        <div className="status">{`Next player: ${xIsNext ? 'X' : 'O'}`}</div>
         <ol>{moves}</ol>
       </div>
     </div>

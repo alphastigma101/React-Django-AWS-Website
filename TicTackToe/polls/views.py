@@ -280,13 +280,18 @@ def start_game(request):
                         if (check is True):
                             # Check and see if the react app refreshed itself 
                             if (GameViewSet.get_new_game(None) > GameViewSet.get_prev_game_value()):
+                                # Means new game was started 
                                 history[GameViewSet.get_new_game(None)] = data
                                 GameViewSet.set_prev_game_value(GameViewSet.get_new_game(None) + 1) # Increment it by one so this field won't get executed until the user refreshes the front end page
                                 game.history[str(GameViewSet.get_new_game(None))] = history # Add the new game that was started
                                 game.current_move = 0
                                 game.save() # Save the data
                             else:
-                                game.history[GameViewSet.get_new_game(None)].update(data) # Index into the correct dictionary field
+                                try:
+                                    game.history[GameViewSet.get_new_game(None)].update(data) # Index into the correct dictionary field
+                                except Exception as e:
+                                    history[GameViewSet.get_new_game(None)] = data
+                                    game.history[str(GameViewSet.get_new_game(None))] = history # Add the new game that was started
                                 game.current_move += 1 
                                 game.save() 
                         else: 
@@ -411,7 +416,8 @@ def logging(request):
                                                                                     f"{code}", 
                                                                                     f"Error parsing timestamp with fallback: {e}"
                                                                                   )
-                    
+                    # Issues can occur here if there is other timezone formats used 
+                    # Should wrap the code below in a try and except block but this is a simple app and it's not needed for now
                     z_timestamp = list(data.keys())
                     for key, value in logging_init.refreshed.items():
                         timestamp = datetime.fromisoformat(z_timestamp[0].replace("Z", "")) # Format it in isoformat
@@ -510,7 +516,10 @@ def winner(request):
                         _winner.save()
                     else:
                         _winner = Winner.objects.get(winner_id='002')
-                        _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))].update(data)
+                        try:
+                            _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))].update(data)
+                        except Exception as e:
+                            _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))] = data
                         _winner.save()
                 else:
                     ## 
