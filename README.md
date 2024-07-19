@@ -187,7 +187,7 @@
 ```
     It is good practice that your routing table routes all your network traffic to your gateway. Which in this case for AWS, your gateway would be igw-xxxxxxxx
     This section will give you steps to verify that your routing table is indeed set up correctly. This section will only have AWS CLI steps, so if you're using the AWS GUI, you can visual check and see if your routing table is properly connected
-````
+```
     * Enter the command after you have issued `aws configure`:
         ```
             aws ec2 describe-route-tables --filters "Name=vpc-id,Values=<your-vpc-id>"
