@@ -2,6 +2,12 @@
 1. [Introduction](#introduction)
 2. [System Requirements And Software](#system-requirements-and-software)
 3. [Learn React](#react)
+    - [What Is A Component](#what-is-a-component)
+    - [What Is The Export Keyword Used For](#what-is-the-export-keyword-used-for)
+    - [What Is JSX Element](#what-is-jsx-element)
+    - [What Are Fragments](#what-are-fragments)
+    - [Why Is CSS Used With React](#why-is-css-used-with-react)
+    - [A File Used To Bridge Your App To The Web](#a-file-used-to-bridge-your-app-to-the-web)
     - [Debugging](#debugging)
     - [Sources](#react-sources)
 4. [Running My App Locally](#running-the-app-locally)
@@ -42,6 +48,45 @@
 
 * The key core of react apps are the `components`. They can  render in html code which is called JSX. They have the same functionality of setters and getter methods but can be modfied to do more than that. 
 
+# What Is A Component
+* A **component** is a piece of reusable code that represents a part of a **user interface.**
+* Components are used to **render, manage, and update** the **UI** elements in your application.
+
+
+# What Is The Export Keyword Used For
+* The **export** JavaScript keyword **makes this function accessible outside of this file**
+
+#  What Is The Default Keyword User For
+* *default* keyword tells other files using your code that it’s the main function in your file.
+
+
+# What Is JSX Element
+* A **JSX element** is a combination of JavaScript code and HTML tags that describes what you’d like to display. className="square" is a button property or prop that tells CSS how to style the button.
+
+# What Are Fragments
+* * **Fragments**: They allow you to return multiple *DOM nodes* as long as they are nested in this: **(<> and </>)**
+* **{{}}**: Allows the template to escape into JavaScript from **JSX**.
+
+
+# Why Is CSS Used With React
+* CSS is used a lot with HTML which can be used with your react app. You can use css by accessing the properties of the css file such as using `className=classname`
+
+# A File Used To Bridge Your App To The Web
+* There is always another file with the extension `.js` that acts like the bridge between your app and the web
+* Here is an example of what a bridge file will look like:
+```
+    import React, { StrictMode } from "react";
+    import { createRoot } from "react-dom/client";
+    import "./styles.css";
+
+    import App from "./App";
+
+    const root = createRoot(document.getElementById("root"));
+    root.render(
+    <StrictMode>
+        <App />
+    </StrictMode>
+```
 # Debugging 
 * There are multiple ways to debug your react app, the easiest way to debug it is setting `debugger;` inside a code block and execute `npm start`, inspect the browser and click on 'debugger' and start debugging your code. You could use `ndb` which then you could use `npx` which allows you to run locally installed packages such as `serve`. Ex: `npx serve -l 4000` will make a static website for your app.
 ```
