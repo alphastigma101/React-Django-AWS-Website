@@ -7,10 +7,10 @@
     - [Sources](#local-sources)
 5. [Configuring React App For AWS (Front-End)](#configuring-react-app-for-aws-(Front-end)) 
     - [Front End Configuration Sources](#front-end-configuration-sources)
-6. []()
-
-4. [Sources](#sources)
-
+6. [Setting Up The BackEnd on AWS](#setting-up-the-backend-on-aws)
+    - [ACLS And Security Groups](#acls-and-security-groups)
+    - [BackEnd Sources](#backend-sources)
+7. []()
 * ----------------------------------------------------------------------------------------------
 
 ### Introduction
@@ -117,20 +117,14 @@
 
 * The ACL rules are quite simple such as all you really need to do is create one in-bound rule that allows all incoming traffic and create the same exact rule but for the out-bound rule. Make sure that 
 
-* You need to also create a outbound rule on the security group level that allows outside network to come in but it must be your public ip that is permitted
-
-* Make a script that will automatically execute and restart the gunicorn.service, gunicorn.socket, and nginx
-    
-* *<FMI>*
-
-* **ACLS**
+# ACLS And Security Groups
 * They control how the subnets of a network communicate with eachother while the **security groups** communicate at a higher level
 * **INNER BOUND RULES:**
 * *<FMI>*
 * **OUTERBOUND RULES**
 * *<FMI>*
 
-# Sources
+# BackEnd Sources
 * **Setting premissions for your IAM**
         * *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-configure-IAM-role.html*
 * *https://awstip.com/host-back-end-environment-in-aws-ec2-d254bc4135e4*
