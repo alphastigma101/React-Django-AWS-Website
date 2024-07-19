@@ -180,8 +180,6 @@
             ...
           ]
 
-
-
 ```
 # Verifying Your Routing Table
 ```
@@ -268,7 +266,7 @@ sudo systemctl enable gunicorn.socket
 ```
 * Check the socket status just in case: 
 ```
-sudo systemctl status gunicorn.socket
+    sudo systemctl status gunicorn.socket
 ```
 * Issue this command: `sudo vim /etc/nginx/sites-available/<YOUR-PROJECT-NAME>` and add the following code into the file you created and modify it :
 ```
