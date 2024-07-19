@@ -10,7 +10,9 @@
 6. [Setting Up The BackEnd on AWS](#setting-up-the-backend-on-aws)
     - [ACLS And Security Groups](#acls-and-security-groups)
     - [BackEnd Sources](#backend-sources)
-7. []()
+7. [Setting Up A Custom VPC](#setting-up-a-custom-vpc)
+8. [Automatically Deploying Your App On The BackEnd](#automatically-deploying-your-app-on-the-backend)
+
 * ----------------------------------------------------------------------------------------------
 
 ### Introduction
@@ -113,7 +115,13 @@
 * ----------------------------------------------------------------------------------------------
 
 ### Setting Up The BackEnd on AWS
-* In order to set up your back end code for automatic deployment, you need to create an EC2 instance, with a VPC attached to it, a security group needs to be associated with it, and a couple of ACL/Security Group rules added to it. And you need to create a IAM user. You also need a Elastic IP Address which you can create by visiting EC2 and look to the left panel until you see elastic, or you can generate one and attach your instance to it
+* In order to set up your back end code for automatic deployment:
+* you need to create an EC2 instance
+* Attach a VPC to it [Setting Up A Custom VPC](#setting-up-a-custom-vpc)
+* a security group needs to be associated with it,
+* A couple of ACL/Security Group rules added to it. 
+* And you need to create a IAM user. 
+* You also need a Elastic IP Address which you can create by visiting EC2 and look to the left panel until you see elastic, or you can generate one and attach your instance to it
 
 * The ACL rules are quite simple such as all you really need to do is create one in-bound rule that allows all incoming traffic and create the same exact rule but for the out-bound rule. Make sure that 
 
@@ -141,13 +149,6 @@
 
 ### Setting Up A Custom VPC
 * To setup a custom VPC (Virtual Private Connect), which is a private network, you need to configure a security group that will be associated with it, with basic rules such as routing HTTP,HTTPS, and SSH, you also need to set up the routing table which needs to be routed to your *internet gateway*, and it needs to be attached to your vpc. 
-
-### Deploying DJano On The Back-End
-* Run this on the back end after sshing into it:
-```
-    python3 TicTackToe/manage.py runserver 0:8000
-```
-
 
 
 # Sources: 
