@@ -2,6 +2,7 @@
 1. [Introduction](#introduction)
 2. [System Requirements And Software](#system-requirements-and-software)
 3. [Learn React](#react)
+    - [Debugging](#debugging)
     - [Sources](#react-sources)
 4. [Running My App Locally](#running-the-app-locally)
     - [Sources](#local-sources)
@@ -18,6 +19,7 @@
     - [TroubleShooting Auto Deployment](#troubleShooting-auto-deployment)
 9. [TroubleShooting your VPC](#troubleshooting-your-vpc)
     - [Verifying Your Routing Table](#verifying-your-routing-table)
+    - [Check And See If Your VPC Is Connected To Your Instance](#check-and-see-if-your-vpc-is-connected-to-your-instance)
     - [Sources](#vpc-troubleshooting-resources)
 
 * ----------------------------------------------------------------------------------------------
@@ -40,6 +42,10 @@
 
 * The key core of react apps are the `components`. They can  render in html code which is called JSX. They have the same functionality of setters and getter methods but can be modfied to do more than that. 
 
+# Debugging 
+```
+    FMI
+```
 # React Sources
 * **ReactDOM**:
     * *https://legacy.reactjs.org/docs/react-dom.html*
@@ -192,8 +198,7 @@
         ```
     * **NOTE:** The command above will output a json structure that will show you your vpc network id and the name **which is needed** for the next step
     * This should help you verify to see if your routing table is set up correctly
-    * ---------------------------------------------------------------------------------------------------------------------------------------------------
-    * **Section:** Check and see if your VPC is connected to your instance
+# Check And See If Your VPC Is Connected To Your Instance
         * To check to see if your instance is connected to your VPC, you need its Id:
         ```
             aws ec2 describe-instances --query "Reservations[*].Instances[*].{ID:InstanceId}"
