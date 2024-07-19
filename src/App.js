@@ -20,18 +20,17 @@ export default function Game() {
   const [log, setLog] = useState({});
   const [loggingCreated, setLoggingCreated] = useState(false);
   const [winnerHandled, setWinnerHandled] = useState(false);
-  
+  const [prevMove, setPrevMove] = useState(0);
   // Create the winner board
   const winnerBoard = {
     'X': X,
     'O': O
   }
-  
   // Mount the react component to record logging for it 
   useEffect(() => {
-    if (!loggingCreated) {
+    if (loggingCreated === false) {
       logging('Creating the logging Data!');
-      setLoggingCreated(true);
+      setLoggingCreated(true); // set loggingCreated to true
     }
   }, [loggingCreated]);
   /*
@@ -48,23 +47,25 @@ export default function Game() {
       if (remote === 1) {
         try {
           // Check to see if EC2 is up and running
-          const response  = await axios.post('http://52.41.13.5/polls/start_game', JSON.stringify(nextHistory));
-          console.log('History updated successfully:', response.data);
-        } catch(error) {
-            logging(String(error));
-        }
+          const response  = await axios.post('http://52.41.13.5/polls/start_game', data);
+        } catch(error) { logging(String(error)); }
       }
       else {
         try {
           // Check to see if the app is running locally
           const response = await axios.post('http://localhost:8000/polls/start_game', data);
-          console.log('History updated successfully:', response.data);
         } 
         catch(error) { logging(String(error)); }
       }
     } 
-    // Check if nextHistory is not empty before sending it
-    if (nextHistory.length > 0) { sendHistory(nextHistory); }
+    // Check if currentMove is greater than prevMove
+    useEffect(() => {
+      debugger;
+      if (currentMove > prevMove) {
+        sendHistory(nextHistory);
+        setPrevMove(currentMove);
+      }
+    }, [currentMove, prevMove]);
   }
   /*
    * (jumpTo): Is a private function of Game Function
@@ -72,10 +73,9 @@ export default function Game() {
       * nextMove: Determines who's turn it is 
    *
   */
-  function jumpTo(nextMove) { setCurrentMove(nextMove);}
+  function jumpTo(nextMove) { setCurrentMove(nextMove);} // increment the component value by 1
   const currentSquares = history[currentMove];
   const xIsNext = currentMove % 2 === 0;
-  
   useEffect(() => {
     const winner = calculateWinner(currentSquares);
     if (winner != null && !winnerHandled) {
@@ -83,14 +83,17 @@ export default function Game() {
       setWinnerHandled(true);
     }
   }, [currentSquares, winnerHandled]);
-
+  /*
+   * (handleWinner): This function will get executed once there is a winner
+   * Params:
+        *  winner: is a string that can be either X or O
+   * Returns:
+      * Returns nothing. It populates the winnerBoard
+   */
   function handleWinner(winner) {
-    if (winner === 'X') {
-      X += 1;
-    } 
-    else {
-      O += 1;
-    }
+    if (winner === 'X') {  X += 1; } 
+    else { O += 1; }
+    setWinnerHandled(false); // set it back to false 
   }
   const moves = history.map((squares, move) => {
     const description = move > 0 ? `Go to move #${move}` : 'Go to game start';
@@ -122,31 +125,25 @@ export default function Game() {
           // Check to see if EC2 is up and running
           const response  = await axios.post('http://52.41.13.5/polls/winner', JSON.stringify(winnerBoard));
         } 
-        catch(error) {
-          logging(String(error)); 
-        }
+        catch(error) { logging(String(error)); }
       }
       else {
         try {
           // Check to see if the app is running locally
           const response = await axios.post('http://localhost:8000/polls/winner', data);
-        
         } 
-        catch(error) {  logging(String(error)); }
+        catch(error) { logging(String(error)); }
       }
     }
     // Check if nextHistory is not empty before sending it
     if (Object.keys(winnerBoard).length > 0) {
-      console.log("Sending Winner data to Django API endpoint!");
-      console.log("Calling sendWinnerBoard function!");
-      setWinnerHandled(false);
-      console.log(winnerBoard);
       sendWinnerBoard(winnerBoard);
     }
   }
   /* 
    * (logging): This is a private method. Set the React component called setLog if it is not set 
-   *
+   * Params:
+      * error: is a string type that represents a string literal of the error that occurred
   */
   function logging(error) {
     const time = new Date().toISOString();

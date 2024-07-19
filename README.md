@@ -43,6 +43,7 @@
 * The key core of react apps are the `components`. They can  render in html code which is called JSX. They have the same functionality of setters and getter methods but can be modfied to do more than that. 
 
 # Debugging 
+* There are multiple ways to debug your react app, the easiest way to debug it is setting `debugger;` inside a code block and execute `npm start`, inspect the browser and click on 'debugger' and start debugging your code
 ```
     FMI
 ```
