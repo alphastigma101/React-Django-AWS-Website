@@ -110,13 +110,13 @@
 * **NOTE:** index.html must be at the top-level directory meaning it should not be inside a folder, if you manually drap and drop them into the bucket
 * Whenever you create new policies they will always be in a **json data structure** 
 
-#### Front End Configuration Sources
-    * **Deploying your front end code to S3**:
-        - *https://dev.to/oyetoket/how-to-deploy-your-frontend-application-on-aws-s3-31m9*
-    * **Creating And Managing Access Keys For IAM**:
-        * *https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html*
-    * **Creating Your First Policy**
-        * *https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started-iam-policy.html*
+# Front End Configuration Sources
+* **Deploying your front end code to S3**:
+    - *https://dev.to/oyetoket/how-to-deploy-your-frontend-application-on-aws-s3-31m9*
+* **Creating And Managing Access Keys For IAM**:
+    - *https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html*
+* **Creating Your First Policy**
+    - *https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started-iam-policy.html*
 
 
 * ----------------------------------------------------------------------------------------------
