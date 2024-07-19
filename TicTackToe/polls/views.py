@@ -7,19 +7,39 @@ from rest_framework import viewsets, status # use status library to return a HTT
 from rest_framework.decorators import api_view # Used for Django's api 
 from rest_framework.response import Response # Use this if a exception occured
 from datetime import datetime, timedelta # Import the datetime and timezone libraries for custom log entries
-import traceback, inspect # Use this to print out the line where the exception occurred and the file it happened in
+import traceback # Use this to print out the line where the exception occurred and the file it happened in
 from .validation import Validation
 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def format_message(File:str, Line:str, Function:str, Code:str, Error:str) -> dict:
-    return {File:Line, Function:Code, "Error":Error}
+
+words = ["Name of file:", "Line that the error occurred:", "The Function name:", "The actual Error message:"]
+
+def format_message(index:int, File:str, Line:str, Function:str, Error:str) -> dict:
+    """
+        This function is a stand alone function. It stores the strings into a dictionary where it can be stored into a dictionary for Djagno's api end point to parse 
+    """
+    return {
+            index:
+                    {
+                        words[0]:File
+                    },
+                    {
+                        words[1]:Line
+                    },
+                    {
+                        words[2]:Function
+                    },
+                    {
+                        words[3]:Error
+                    }
+           }
 
 class LoggingViewSet(viewsets.ViewSet, Validation):
     '''
         A class that implements the singleton method and also represents the the logging view
     '''
     _instance = None  # Class variable to hold the singleton instance
-    
+    __log_index = 0
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls)
@@ -66,19 +86,26 @@ class LoggingViewSet(viewsets.ViewSet, Validation):
                 text = "Logging table created successfully."
                 self.log_entry[datetime.now().isoformat()] = text
         except DatabaseError as e:
-            frame = inspect.currentframe()                                         
-            filename = frame.f_back.f_code.co_filename
-            line_number = frame.f_back.f_lineno 
-            funcname = frame.f_trace
-            code = frame.f_code
+            # Convert it into a FrameSummary
+            frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+            filename = frame.filename
+            line = frame.lineno 
+            funcname = frame.line
             text = format_message(
+                                  self.get_log_index(),
                                   f"{filename}", 
-                                  f"{line_number}", 
-                                  f"{funcname}", 
-                                  f"{code}", 
+                                  f"{line}", 
+                                  f"{funcname}",  
                                   f"{e}"
                                  )
             self.log_entry[current_time] = text
+
+    def get_log_index(self) -> int:
+        return self.__log_index
+
+    def set_log_index(self, value:int) -> None:
+        self.__log_index += value
+
 
     def get_queryset(self):
         """
@@ -126,19 +153,17 @@ class GameViewSet(viewsets.ModelViewSet,  Validation):
                     schema_editor.create_model(Game)
                 logging_init.log_entry[curr_time] = "Game table created successfully."
         except DatabaseError as e:
-            frame = inspect.currentframe()                                         
-            filename = frame.f_back.f_code.co_filename
-            line_number = frame.f_back.f_lineno 
-            funcname = frame.f_trace
-            code = frame.f_code
+            frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+            filename = frame.filename
+            line = frame.lineno 
+            funcname = frame.line
             logging_init.log_entry[current_time] = format_message(
+                                                                  logging_init.get_log_index(),
                                                                   f"{filename}",
-                                                                  f"{line_number}", 
+                                                                  f"{line}", 
                                                                   f"{funcname}",
-                                                                  f"{code}",
                                                                   f"{e}"
                                                                  )
-
     @staticmethod 
     def set_new_game(value:int) -> None:
         GameViewSet.__new_game += value
@@ -206,16 +231,15 @@ class WinnerViewSet(viewsets.ModelViewSet, Validation):
                 logging_init.log_entry[current_time] = "Winner Table has been created"
         except DatabaseError as e:
             # Handle database errors
-            frame = inspect.currentframe()                                         
-            filename = frame.f_back.f_code.co_filename
-            line_number = frame.f_back.f_lineno 
-            funcname = frame.f_trace
-            code = frame.f_code
+            frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+            filename = frame.filename
+            line = frame.lineno 
+            funcname = frame.line                                       
             text = format_message(
+                                    logging_init.get_log_index(),
                                     f"{filename}", 
-                                    f"{line_number}", 
+                                    f"{line}", 
                                     f"{funcname}", 
-                                    f"{code}", 
                                     f"{e}"
                                  )
             logging_init.log_entry[current_time] = text
@@ -257,60 +281,72 @@ def start_game(request):
         match request.method:
             case 'POST':
                 if data is None:
-                    frame = inspect.currentframe()                                         
-                    filename = frame.f_back.f_code.co_filename
-                    line_number = frame.f_back.f_lineno 
-                    funcname = frame.f_trace
-                    code = frame.f_code
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
+                    words[3] = "Object is:"
                     return Response(
                             {
                                 "Game History": 
                                     format_message(
+                                                    logging_init.get_log_index(),
                                                     f"{filename}", 
-                                                    f"{line_number}", 
-                                                    f"{funcname}", 
-                                                    f"{code}", 
-                                                    f"Object is {data}"
+                                                    f"{line}", 
+                                                    f"{funcname}",  
+                                                    f"{data}"
                                                   )
                             }, status=status.HTTP_400_BAD_REQUEST)
                 else:
                     game = Game.objects.get(game_id='001')
                     check = GameViewSet.validate_2d_array(data) # Validate the data without actually using the serialization.py modules 
                     try:
-                        if (check is True):
-                            # Check and see if the react app refreshed itself 
-                            if (GameViewSet.get_new_game(None) > GameViewSet.get_prev_game_value()):
-                                # Means new game was started 
+                        assert check is True
+                        # Check and see if the react app refreshed itself 
+                        if (GameViewSet.get_new_game(None) > GameViewSet.get_prev_game_value()):
+                            # Means new game was started 
+                            history[GameViewSet.get_new_game(None)] = data
+                            GameViewSet.set_prev_game_value(GameViewSet.get_new_game(None) + 1) # Increment it by one so this field won't get executed until the user refreshes the front end page
+                            game.history[str(GameViewSet.get_new_game(None))] = history # Add the new game that was started
+                            game.current_move = 0
+                            game.save() # Save the data
+                        else:
+                            try:
+                                game.history[GameViewSet.get_new_game(None)].update(data) # Index into the correct dictionary field
+                            except Exception as e:
+                                frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                                filename = frame.filename
+                                line = frame.lineno 
+                                funcname = frame.line
+                                logging_init.log_entry[current_time] = format_message(
+                                                                                        logging_init.get_log_index(),
+                                                                                        f"{filename}", 
+                                                                                        f"{line}", 
+                                                                                        f"{funcname}", 
+                                                                                        f"{e}"
+                                                                                     )
                                 history[GameViewSet.get_new_game(None)] = data
-                                GameViewSet.set_prev_game_value(GameViewSet.get_new_game(None) + 1) # Increment it by one so this field won't get executed until the user refreshes the front end page
                                 game.history[str(GameViewSet.get_new_game(None))] = history # Add the new game that was started
-                                game.current_move = 0
-                                game.save() # Save the data
-                            else:
-                                try:
-                                    game.history[GameViewSet.get_new_game(None)].update(data) # Index into the correct dictionary field
-                                except Exception as e:
-                                    history[GameViewSet.get_new_game(None)] = data
-                                    game.history[str(GameViewSet.get_new_game(None))] = history # Add the new game that was started
-                                game.current_move += 1 
-                                game.save() 
-                        else: 
-                            ###
-                            # Add more here such as logging and what not. July 17th 2024
-                            text = "Data is not in the form of a two dimensional array!"
+                            game.current_move += 1 
+                            game.save() 
                     except Exception as e:
-                        frame = inspect.currentframe()                                         
-                        filename = frame.f_back.f_code.co_filename
-                        line_number = frame.f_back.f_lineno 
-                        funcname = frame.f_trace
-                        code = frame.f_code
-                        logging_init.log_entry[current_time] = format_message(  
+                        frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                        filename = frame.filename
+                        line = frame.lineno 
+                        funcname = frame.line
+                        logging_init.log_entry[current_time] = format_message(
+                                                                                logging_init.get_log_index(),
                                                                                 f"{filename}", 
-                                                                                f"{line_number}", 
+                                                                                f"{line}", 
                                                                                 f"{funcname}", 
-                                                                                f"{code}", 
                                                                                 f"{e}"
-                                                                             ) 
+
+                                                                             )
+                        log = Logging.objects.get(logging_id='003')
+                        log.entries.update(logging_init.log_entry)
+                        serializer = LoggingSerializer(log)
+                        log.save()
+                        return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
             case 'GET':
                 try:
                     game = Game.objects.get(game_id='001')
@@ -323,16 +359,15 @@ def start_game(request):
                     game.save()
                     return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
                 except Exception as e:
-                    frame = inspect.currentframe()                                         
-                    filename = frame.f_back.f_code.co_filename
-                    line_number = frame.f_back.f_lineno 
-                    funcname = frame.f_trace
-                    code = frame.f_code
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
+                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
-                                                                            f"{line_number}", 
+                                                                            f"{line}", 
                                                                             f"{funcname}", 
-                                                                            f"{code}", 
                                                                             f"{e}"
                                                                          )
                     log = Logging.objects.get(logging_id='003')
@@ -345,22 +380,28 @@ def start_game(request):
         game.save()
         return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
-        # Handle any exceptions that occur during game creation
-        frame = inspect.currentframe()                                         
-        filename = frame.f_back.f_code.co_filename
-        line_number = frame.f_back.f_lineno 
-        funcname = frame.f_trace
-        code = frame.f_code
-        logging_init.log_entry[current_time] = format_message(
-                                                               f"{filename}",
-                                                               f"{line_number}", 
-                                                               f"{funcname}", 
-                                                               f"{code}",
-                                                               f"{e}"
-                                                             )
+        frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+        filename = frame.filename
+        line = frame.lineno 
+        funcname = frame.line
+        # { logging_init.get_log_index(): 
+        #     current_time: {
+        #                     words[0]:filename
+        #                   },
+        #                   { 
+        #                     words[1]:line
+        #                   },
+        #                   ........
+        logging_init.log_entry[logging_init.get_log_index()][current_time] = format_message(
+                                                                                                logging_init.get_log_index(),
+                                                                                                f"{filename}", 
+                                                                                                f"{line}", 
+                                                                                                f"{funcname}", 
+                                                                                                f"{e}"
+                                                                                           )
         log = Logging.objects.get(logging_id='003') # Serialiing is needed because everything needs to be json serialized 
         serializer = LoggingSerializer(log)
-        return Response({"Game History": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
     
 
 @api_view(['GET','POST'])
@@ -380,22 +421,20 @@ def logging(request):
         match request.method:
             case 'POST':
                 if data is None:
-                    frame = inspect.currentframe()                                         
-                    filename = frame.f_back.f_code.co_filename
-                    line_number = frame.f_back.f_lineno 
-                    funcname = frame.f_trace
-                    code = frame.f_code
-                    return Response(
-                                    {
-                                        "Log History": 
-                                            format_message(
-                                                            f"{filename}", 
-                                                            f"{line_number}", 
-                                                            f"{funcname}", 
-                                                            f"{code}",
-                                                            f"Object is {data}"
-                                                          )
-                                    }, status=status.HTTP_400_BAD_REQUEST)
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
+                    logging_init.log_entry[current_time] = format_message(
+                                                                            logging_init.get_log_index(),
+                                                                            f"{filename}", 
+                                                                            f"{line}", 
+                                                                            f"{funcname}", 
+                                                                            f"{e}"
+                                                                         )
+                    log = Logging.objects.get(logging_id='003')
+                    serializer = LoggingSerializer(log)
+                    return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
                 check = logging_init.is_dictionary(data)
                 if (check is True):
                     # Check to see if the data coming from react app is a dictionary 
@@ -408,34 +447,69 @@ def logging(request):
                                 key = str_timestamp
                                 logging_init.refreshed[key] = value
                             except Exception as e:
-                                frame = inspect.currentframe()                                         
-                                filename = frame.f_back.f_code.co_filename
-                                line_number = frame.f_back.f_lineno 
-                                funcname = frame.f_trace
-                                code = frame.f_code
-                                logging_init.log_entry[timestamp] = format_message(
-                                                                                    f"{filename}", 
-                                                                                    f"{line_number}", 
-                                                                                    f"{funcname}",
-                                                                                    f"{code}", 
-                                                                                    f"Error parsing timestamp with fallback: {e}"
-                                                                                  )
-                    # Issues can occur here if there is other timezone formats used 
-                    # Should wrap the code below in a try and except block but this is a simple app and it's not needed for now
-                    z_timestamp = list(data.keys())
-                    for key, value in logging_init.refreshed.items():
-                        timestamp = datetime.fromisoformat(z_timestamp[0].replace("Z", "")) # Format it in isoformat
-                        iso_conv = datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
-                        diff = (iso_conv - timestamp).total_seconds()
-                        if (diff < 0):
-                            # Game was refreshed 
-                            GameViewSet.set_new_game(1)
-                            GameViewSet.set_prev_game_value(1 - GameViewSet.get_new_game(None))
-                        logging_init.log_entry[timestamp.strftime("%Y-%m-%d %H:%M:%S")] = value
-                    ####
-                    # Add more here later on July 17th, 2024
-                    ####
-                    #text = "data that was recieved is not a dictionary!"
+                                frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                                filename = frame.filename
+                                line = frame.lineno 
+                                funcname = frame.line
+                                logging_init.log_entry[current_time] = format_message(
+                                                                                        logging_init.get_log_index(),
+                                                                                        f"{filename}", 
+                                                                                        f"{line}", 
+                                                                                        f"{funcname}", 
+                                                                                        f"{e}"
+                                                                                     )
+                                log = Logging.objects.get(logging_id='003')
+                                log.entries.update(logging_init.log_entry)
+                                serializer = LoggingSerializer(log)
+                                log.save()
+                                return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
+                    try:
+                        z_timestamp = list(data.keys())
+                        for key, value in logging_init.refreshed.items():
+                            timestamp = datetime.fromisoformat(z_timestamp[0].replace("Z", "")) # Format it in isoformat
+                            iso_conv = datetime.strptime(key, "%Y-%m-%d %H:%M:%S")
+                            diff = (iso_conv - timestamp).total_seconds()
+                            if (diff < 0):
+                                # Game was refreshed 
+                                logging_init.set_log_index(1)
+                                GameViewSet.set_new_game(1)
+                                GameViewSet.set_prev_game_value(1 - GameViewSet.get_new_game(None))
+                            logging_init.log_entry[timestamp.strftime("%Y-%m-%d %H:%M:%S")] = value
+                    except Exception as e:
+                        frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                        filename = frame.filename
+                        line = frame.lineno 
+                        funcname = frame.line
+                        logging_init.log_entry[current_time] = format_message(
+                                                                                logging_init.get_log_index(),
+                                                                                f"{filename}", 
+                                                                                f"{line}", 
+                                                                                f"{funcname}", 
+                                                                                f"{e}"
+                                                                             )
+                        log = Logging.objects.get(logging_id='003')
+                        log.entries.update(logging_init.log_entry)
+                        serializer = LoggingSerializer(log)
+                        log.save()
+                        return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    text = "data that was recieved is not a dictionary!"
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
+                    logging_init.log_entry[current_time] = format_message(
+                                                                            logging_init.get_log_index(),
+                                                                            f"{filename}", 
+                                                                            f"{line}", 
+                                                                            f"{funcname}", 
+                                                                            f"{words[3]}{text}"
+                                                                         )
+                    log = Logging.objects.get(logging_id='003')
+                    log.entries.update(logging_init.log_entry)
+                    serializer = LoggingSerializer(log)
+                    log.save()
+                    return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
             case 'GET':
                 # GET method is needed because if the developer refreshes the page, it will keep it up to date
                 try:
@@ -446,19 +520,18 @@ def logging(request):
                     log.save()
                     return Response({"Log History": serializer.data}, status=status.HTTP_200_OK)
                 except Exception as e:
-                    # Update the database to hold new data
-                    frame = inspect.currentframe()                                         
-                    filename = frame.f_back.f_code.co_filename
-                    line_number = frame.f_back.f_lineno 
-                    funcname = frame.f_trace
-                    code = frame.f_code
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            f"{filename}",
-                                                                            f"{line_number}", 
+                                                                            logging_init.get_log_index(),
+                                                                            f"{filename}", 
+                                                                            f"{line}", 
                                                                             f"{funcname}", 
-                                                                            f"{code}", 
                                                                             f"{e}"
                                                                          )
+
                     log = Logging.objects.get(logging_id='003')
                     log.entries.update(logging_init.log_entry)
                     serializer = LoggingSerializer(log)
@@ -472,18 +545,22 @@ def logging(request):
         return Response({"Log History": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
-        frame = inspect.currentframe()                                         
-        filename = frame.f_back.f_code.co_filename
-        line_number = frame.f_back.f_lineno 
-        funcname = frame.f_trace
-        code = frame.f_code
+        frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+        filename = frame.filename
+        line = frame.lineno 
+        funcname = frame.line
         logging_init.log_entry[current_time] = format_message(
-                                                                f"{filename}",
-                                                                f"{line_number}", 
-                                                                f"{funcname}",
-                                                                f"{code}",
+                                                                logging_init.get_log_index(),
+                                                                f"{filename}", 
+                                                                f"{line}", 
+                                                                f"{funcname}", 
                                                                 f"{e}"
                                                              )
+        log = Logging.objects.get(logging_id='003')
+        logging_init.rotate_logs() # Rotate the logs
+        log.entries.update(logging_init.log_entry)
+        serializer = LoggingSerializer(log)
+        log.save()
         return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -504,14 +581,29 @@ def winner(request):
         data = request.data
         match request.method:
             case 'POST':
-                if data is None:
-                    frame = inspect.currentframe()                                         
-                    filename = frame.f_back.f_code.co_filename
-                    line_number = frame.f_back.f_lineno 
-                    funcname = frame.f_trace
-                    code = frame.f_code
+                try:
+                    assert data is not None # RaiseError if data is none
+                except Exception as e:
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
+                    logging_init.log_entry[current_time] = format_message(
+                                                                            logging_init.get_log_index(),
+                                                                            f"{filename}", 
+                                                                            f"{line}", 
+                                                                            f"{funcname}", 
+                                                                            f"{e}"
+                                                                         )
+                    log = Logging.objects.get(logging_id='003')
+                    logging_init.rotate_logs() # Rotate the logs
+                    log.entries.update(logging_init.log_entry)
+                    serializer = LoggingSerializer(log)
+                    log.save()
+                    return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
                 check = WinnerViewSet.is_dictionary(data)
-                if (check is True):
+                try:
+                    assert check is True # Raiseor if check is False
                     if (GameViewSet.get_new_game(None) > GameViewSet.get_prev_game_value()):
                         WinnerViewSet.set_new_score_board(WinnerViewSet.get_new_score_board(None) + 1)
                         # New game was started
@@ -524,12 +616,37 @@ def winner(request):
                             _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))].update(data)
                         except Exception as e:
                             _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))] = data
+                            frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                            filename = frame.filename
+                            line = frame.lineno 
+                            funcname = frame.line
+                            logging_init.log_entry[current_time] = format_message(
+                                                                                    logging_init.get_log_index(),
+                                                                                    f"{filename}", 
+                                                                                    f"{line}", 
+                                                                                    f"{funcname}", 
+                                                                                    f"{e}"
+                                                                                 )
                         _winner.save()
-                else:
-                    ## 
-                    # Add more here such as logging and what not July 17th 2024
+                except Exception as e:
                     text = "(winner): data is not in the form of a dictionary!"
-                    ##
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
+                    logging_init.log_entry[current_time] = format_message(
+                                                                            logging_init.get_log_index(),
+                                                                            f"{filename}", 
+                                                                            f"{line}", 
+                                                                            f"{funcname}", 
+                                                                            f"{e}"
+                                                                         )
+                    log = Logging.objects.get(logging_id='003')
+                    logging_init.rotate_logs() # Rotate the logs
+                    log.entries.update(logging_init.log_entry)
+                    serializer = LoggingSerializer(log)
+                    log.save()
+                    return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
             case 'GET':
                 try:
                     logging_init.rotate_logs()
@@ -539,18 +656,24 @@ def winner(request):
                     _winner.save()
                     return Response({"Winner Board": serializer.data}, status=status.HTTP_200_OK)
                 except Exception as e:
-                    frame = inspect.currentframe()                                         
-                    filename = frame.f_back.f_code.co_filename
-                    line_number = frame.f_back.f_lineno 
-                    funcname = frame.f_trace
-                    code = frame.f_code
+                    _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))] = data
+                    frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+                    filename = frame.filename
+                    line = frame.lineno 
+                    funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
+                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
-                                                                            f"{line_number}", 
-                                                                            f"{funcname}",
-                                                                            f"{code}", 
+                                                                            f"{line}", 
+                                                                            f"{funcname}", 
                                                                             f"{e}"
                                                                          )
+                    log = Logging.objects.get(logging_id='003')
+                    logging_init.rotate_logs() # Rotate the logs
+                    log.entries.update(logging_init.log_entry)
+                    serializer = LoggingSerializer(log)
+                    log.save()
+                    return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
         _winner = Winner.objects.get(winner_id='002')
         _winner.amount_of_times[str(WinnerViewSet.get_new_score_board(None))].update(data)
         serializer = WinnerSerializer(_winner) # always serialize your data as it won't work if you tried displaying it in the Django's api
@@ -558,18 +681,20 @@ def winner(request):
         return Response({"Winner Board": serializer.data}, status=status.HTTP_200_OK)
     except Exception as e:
         # Handle any exceptions that occur during game creation
-        frame = inspect.currentframe()                                         
-        filename = frame.f_back.f_code.co_filename
-        line_number = frame.f_back.f_lineno 
-        funcname = frame.f_trace
-        code = frame.f_code
-        log = Logging.objects.get(logging_id='003') # Serialiing is needed because everything needs to be json serialized 
-        serializer = LoggingSerializer(log)
+        frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
+        filename = frame.filename
+        line = frame.lineno 
+        funcname = frame.line
         logging_init.log_entry[current_time] = format_message(
+                                                                logging_init.get_log_index(),
                                                                 f"{filename}", 
-                                                                f"{line_number}", 
+                                                                f"{line}", 
                                                                 f"{funcname}", 
-                                                                f"{code}", 
                                                                 f"{e}"
                                                              )
-        return Response({"Log History": serializer.data}, status=status.HTTP_200_OK)
+        log = Logging.objects.get(logging_id='003')
+        logging_init.rotate_logs() # Rotate the logs
+        log.entries.update(logging_init.log_entry)
+        serializer = LoggingSerializer(log)
+        log.save()
+        return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
