@@ -11,7 +11,14 @@
     - [ACLS And Security Groups](#acls-and-security-groups)
     - [BackEnd Sources](#backend-sources)
 7. [Setting Up A Custom VPC](#setting-up-a-custom-vpc)
+    - [FMI](#..)
+    - [FMI](#..)
 8. [Automatically Deploying Your App On The BackEnd](#automatically-deploying-your-app-on-the-backend)
+    - [Sources](#automatically-deploying-your-app-resources)
+    - [TroubleShooting Auto Deployment](#troubleShooting-auto-deployment)
+9. [TroubleShooting your VPC](#troubleshooting-your-vpc)
+    - [Verifying Your Routing Table](#verifying-your-routing-table)
+    - [Sources](#vpc-troubleshooting-resources)
 
 * ----------------------------------------------------------------------------------------------
 
@@ -150,10 +157,6 @@
 ### Setting Up A Custom VPC
 * To setup a custom VPC (Virtual Private Connect), which is a private network, you need to configure a security group that will be associated with it, with basic rules such as routing HTTP,HTTPS, and SSH, you also need to set up the routing table which needs to be routed to your *internet gateway*, and it needs to be attached to your vpc. 
 
-
-# Sources: 
-    * **Setting Up Back End Code:**
-        - *https://realpython.com/django-nginx-gunicorn/#starting-with-django-and-wsgiserver*
 
 * --------------------------------------------------------------------------------------------
 
@@ -301,12 +304,9 @@ sudo ln -s /etc/nginx/sites-available/<YOUR-PROJECT-NAME> /etc/nginx/sites-enabl
 ```
 
 * **NOTE:** Whenever you shutdown your instance, you need to restart your gunicorn.service file. A bash script can be created that will automatically executed on the user level if needed.
-
-# TroubleShooting Auto Deployment
-* If you run into **bad gateway 502**, you need to change the user to **root** inside the `nginx.conf` file. More info here: *https://stackoverflow.com/questions/70111791/nginx-13-permission-denied-while-connecting-to-upstream*
- 
-
-### AutoMatic Deployment Sources
+# Automatically Deploying Your App Resources
+* **Automaticall Setting Up Back End Code with gunicorn and wsgiserver**
+    - *https://realpython.com/django-nginx-gunicorn/#starting-with-django-and-wsgiserver*
 * **Deploying Back End Code:**
         * **NOTE**: The guides below are a bit out dated such as you don't really need to create all the in-bound/out-bound rules
         * *https://dev.to/awscommunity-asean/create-and-deploy-python-django-application-in-aws-ec2-instance-4hbm*
@@ -314,3 +314,9 @@ sudo ln -s /etc/nginx/sites-available/<YOUR-PROJECT-NAME> /etc/nginx/sites-enabl
     * **Perks Of Creating .socket Inside The Root Of Your Project:**
         * You avoid premission errors which is very crucial when it comes to back end deployment
         * *https://pythoncircle.com/post/697/hosting-django-app-for-free-on-amazon-aws-ec2-with-gunicorn-and-nginx/*
+
+
+# TroubleShooting Auto Deployment
+* If you run into **bad gateway 502**, you need to change the user to **root** inside the `nginx.conf` file. More info here: *https://stackoverflow.com/questions/70111791/nginx-13-permission-denied-while-connecting-to-upstream*
+ 
+
