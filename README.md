@@ -3,16 +3,17 @@
 2. [System Requirements And Software](#system-requirements-and-software)
 3. [Learn React](#react)
     - [Sources](#react-sources)
-
 4. [Running My App Locally](#running-the-app-locally)
     - [Sources](#local-sources)
+5. [Front End Configuration Sources](#front-end-configuration-sources)
+    - []()
 
 4. [Sources](#sources)
 
 
 ### Introduction
 ```
-    The purpose of this public repo is to demostrate my knowledge of Django and React.js. The goal is to build an app using React.js for the front-end and Django as its backend.
+    The purpose of this public repo is to demostrate my knowledge of Django and React.js. The goal is to build an app using React.js for the front-end and Django as its backend. I am using existing code that you can copy from the react website itself called TickTackToe, but my version is a modified to include two additional components. The purpose of this is to show that I understand components and organization skills.
 ```
 
 #### System Requirements And Software
@@ -26,7 +27,7 @@
 
 ### React
 
-* *<FMI>*
+* The key core of react apps are the `components`. They can  render in html code which is called JSX. They have the same functionality of setters and getter methods but can be modfied to do more than that. 
 
 # React Sources
 * **ReactDOM**:
@@ -73,14 +74,7 @@
 * In order to deploy your app, you need to run `npm run build` which will build the `index.html` file. 
 * To set up your react on the front end, you will use **S3** which is a bucket, you need to also enable **static web hosting** once you're done creating the bucket, and set policies for it.
 
-* In order to launch and deploy your front-end code, you need to create a IAM policy for it and add the user to it. You will get something like this:
-```
-
-```
-* Once you're done, give it a name. Mine is `CreateAndManageKeys`, and add it to a IAM user. You can simply create one by going to settings and clicking on *IAM/User* in your settings
-* Create the IAM user with the default options and you should see a link that allows you to create the access key for that IAM user.
-* You also need to add the newly created user to group and attached your newly created policy to it and add the user to it.
-* From there on, you want to execute this command in your client's terminal:
+* Create the IAM user with the default options and you should see a link that allows you to create the access key for that IAM user. You can do this by creating a custom policy or assign one that is already made to your IAM user. Once you made your IAM account, you want to execute this command in your client's terminal:
 ```
     aws configure 
 ```
@@ -95,7 +89,6 @@
 * For the region, I went with *us-west-1*
 
 
-
 * To keep updating your app from the cli, you can do this: 
 ```
     aws s3 sync <folder_path> s3://name-of-bucket
@@ -104,7 +97,7 @@
 * **NOTE:** index.html must be at the top-level directory meaning it should not be inside a folder, if you manually drap and drop them into the bucket
 * Whenever you create new policies they will always be in a **json data structure** 
 
-# Sources
+#### Front End Configuration Sources
     * **Deploying your front end code to S3**:
         - *https://dev.to/oyetoket/how-to-deploy-your-frontend-application-on-aws-s3-31m9*
     * **Creating And Managing Access Keys For IAM**:
@@ -115,7 +108,7 @@
 
 * ----------------------------------------------------------------------------------------------
 
-### Setting Up The BackEnd
+### Setting Up The BackEnd on AWS
 * In order to set up your back end code for automatic deployment, you need to create an EC2 instance, with a VPC attached to it, a security group needs to be associated with it, and a couple of ACL/Security Group rules added to it. And you need to create a IAM user. You also need a Elastic IP Address which you can create by visiting EC2 and look to the left panel until you see elastic, or you can generate one and attach your instance to it
 
 * The ACL rules are quite simple such as all you really need to do is create one in-bound rule that allows all incoming traffic and create the same exact rule but for the out-bound rule. Make sure that 
