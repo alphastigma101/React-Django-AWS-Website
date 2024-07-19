@@ -1,9 +1,11 @@
 #### Table Of Contents
 1. [Introduction](#introduction)
-
 2. [System Requirements And Software](#system-requirements-and-software)
+3. [Learn React](#react)
+    - [Sources](#react-sources)
 
-3. [Running The App](#running-the-app-automatically-or-manually-automatically-or-manually)
+4. [Running My App Locally](#running-the-app-locally)
+    - [Sources](#local-sources)
 
 4. [Sources](#sources)
 
@@ -25,13 +27,15 @@
 ### React
 
 * *<FMI>*
+
+# React Sources
 * **ReactDOM**:
     * *https://legacy.reactjs.org/docs/react-dom.html*
 * **React**:
     * *https://legacy.reactjs.org/docs/react-api.html*
 
 ### Running the App Locally 
-* Install dependencies with `npm install`. Note that there may be deprecated dependencies or it saying vulernable packages detected. You can ignore that if and only if talks about **nth-check** as the package.json file is structured in a way where it tests the product `dependencies` and the development `dependencies`. You can view this source here for more info: **https://stackoverflow.com/questions/71781795/react-npm-inefficient-regular-expression-complexity-in-nth-check**. You can also execute `deploy-app.sh` by she-banging it like so `deploy-app.sh` which will deploy the app
+* Install dependencies with `npm install`. Note that there may be deprecated dependencies or it saying vulernable packages detected. You can ignore that if and only if talks about **nth-check** as the package.json file is structured in a way where it tests the product `dependencies` and the development `dependencies`. You can view this source here for more info: **https://stackoverflow.com/questions/71781795/react-npm-inefficient-regular-expression-complexity-in-nth-check**. 
 
 * Start the app **on your client machine**, issue `npm start` and follow prompts to view the code running in a browser.
 
@@ -54,7 +58,8 @@
 * **http://localhost:8000/logging** this is to view  *Django's api logging* 
 * **http://localhost:8000/winner** this is to view *Django's winner apie endpoint*
 
-# Sources
+* Once you're done, you can run `npm run build`
+# Local Sources
 * **COORSHEADERS**:
     * *https://www.bezkoder.com/react-redux-crud-example/*
 * **React Component Examples**
@@ -63,12 +68,7 @@
 
 
 
-### Configuring React App For AWS (Front-End)
-* In order to deploy your app, you need to run `npm run build` which will build the `index.html` file. 
-* To set up your react on the front end, you will use **S3** which is a bucket, you need to also enable **static web hosting** once you're done creating the bucket, and set policies for it.
-* Here is my app product link: *http://react-tictacktoe.s3-website-us-west-2.amazonaws.com/*
 
-### 
 
 
 
