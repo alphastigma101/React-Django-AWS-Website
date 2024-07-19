@@ -5,11 +5,13 @@
     - [Sources](#react-sources)
 4. [Running My App Locally](#running-the-app-locally)
     - [Sources](#local-sources)
-5. [Front End Configuration Sources](#front-end-configuration-sources)
-    - []()
+5. [Configuring React App For AWS (Front-End)](#configuring-react-app-for-aws-(Front-end)) 
+    - [Front End Configuration Sources](#front-end-configuration-sources)
+6. []()
 
 4. [Sources](#sources)
 
+* ----------------------------------------------------------------------------------------------
 
 ### Introduction
 ```
@@ -34,6 +36,7 @@
     * *https://legacy.reactjs.org/docs/react-dom.html*
 * **React**:
     * *https://legacy.reactjs.org/docs/react-api.html*
+* ----------------------------------------------------------------------------------------------
 
 ### Running the App Locally 
 * Install dependencies with `npm install`. Note that there may be deprecated dependencies or it saying vulernable packages detected. You can ignore that if and only if talks about **nth-check** as the package.json file is structured in a way where it tests the product `dependencies` and the development `dependencies`. You can view this source here for more info: **https://stackoverflow.com/questions/71781795/react-npm-inefficient-regular-expression-complexity-in-nth-check**. 
@@ -68,6 +71,7 @@
     * *https://react.dev/reference/react/useState#adding-state-to-a-component*
 
 
+* ----------------------------------------------------------------------------------------------
 
 
 ### Configuring React App For AWS (Front-End)
@@ -206,7 +210,7 @@
         ```
 
         ```
-# Sources:
+# Trouble Shooting Sources:
         * **Connect to your instance through SSH**:
             - *https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html#ec2-connect-to-instance-windows*
         * **What is a elastic Ip address**:
@@ -307,7 +311,7 @@ sudo ln -s /etc/nginx/sites-available/<YOUR-PROJECT-NAME> /etc/nginx/sites-enabl
 * If you run into **bad gateway 502**, you need to change the user to **root** inside the `nginx.conf` file. More info here: *https://stackoverflow.com/questions/70111791/nginx-13-permission-denied-while-connecting-to-upstream*
  
 
-### Sources
+### AutoMatic Deployment Sources
 * **Deploying Back End Code:**
         * **NOTE**: The guides below are a bit out dated such as you don't really need to create all the in-bound/out-bound rules
         * *https://dev.to/awscommunity-asean/create-and-deploy-python-django-application-in-aws-ec2-instance-4hbm*
@@ -315,15 +319,3 @@ sudo ln -s /etc/nginx/sites-available/<YOUR-PROJECT-NAME> /etc/nginx/sites-enabl
     * **Perks Of Creating .socket Inside The Root Of Your Project:**
         * You avoid premission errors which is very crucial when it comes to back end deployment
         * *https://pythoncircle.com/post/697/hosting-django-app-for-free-on-amazon-aws-ec2-with-gunicorn-and-nginx/*
-
-
-
-# Viewing My Website And Seeing Examples Of Visiting My Server
-
-* To visit my api end points as an example: 
-```
-    http://52.41.13.5/polls/start_game
-    http://52.41.13.5/polls/logging
-    http://52.41.13.5/polls/winner
-```
-
