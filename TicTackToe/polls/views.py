@@ -14,32 +14,25 @@ current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 words = ["Name of file:", "Line that the error occurred:", "The Function name:", "The actual Error message:"]
 
-def format_message(index:int, File:str, Line:str, Function:str, Error:str) -> dict:
+def format_message(File:str, Line:str, Function:str, Error:str, time=current_time) -> dict:
     """
         This function is a stand alone function. It stores the strings into a dictionary where it can be stored into a dictionary for Djagno's api end point to parse 
     """
     return {
-            index:
-                    {
-                        words[0]:File
-                    },
-                    {
-                        words[1]:Line
-                    },
-                    {
-                        words[2]:Function
-                    },
-                    {
-                        words[3]:Error
-                    }
+            time: {
+                        words[0]: File,
+                        words[1]: Line,
+                        words[2]: Function,
+                        words[3]: Error
+                   }
            }
+
 
 class LoggingViewSet(viewsets.ViewSet, Validation):
     '''
         A class that implements the singleton method and also represents the the logging view
     '''
     _instance = None  # Class variable to hold the singleton instance
-    __log_index = 0
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = super().__new__(cls)
@@ -92,20 +85,12 @@ class LoggingViewSet(viewsets.ViewSet, Validation):
             line = frame.lineno 
             funcname = frame.line
             text = format_message(
-                                  self.get_log_index(),
                                   f"{filename}", 
                                   f"{line}", 
                                   f"{funcname}",  
                                   f"{e}"
                                  )
             self.log_entry[current_time] = text
-
-    def get_log_index(self) -> int:
-        return self.__log_index
-
-    def set_log_index(self, value:int) -> None:
-        self.__log_index += value
-
 
     def get_queryset(self):
         """
@@ -151,14 +136,13 @@ class GameViewSet(viewsets.ModelViewSet,  Validation):
                 # Create the Game model table
                 with connection.schema_editor() as schema_editor:
                     schema_editor.create_model(Game)
-                logging_init.log_entry[curr_time] = "Game table created successfully."
+                logging_init.log_entry[current_time] = "Game table created successfully."
         except DatabaseError as e:
             frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
             filename = frame.filename
             line = frame.lineno 
             funcname = frame.line
             logging_init.log_entry[current_time] = format_message(
-                                                                  logging_init.get_log_index(),
                                                                   f"{filename}",
                                                                   f"{line}", 
                                                                   f"{funcname}",
@@ -236,7 +220,6 @@ class WinnerViewSet(viewsets.ModelViewSet, Validation):
             line = frame.lineno 
             funcname = frame.line                                       
             text = format_message(
-                                    logging_init.get_log_index(),
                                     f"{filename}", 
                                     f"{line}", 
                                     f"{funcname}", 
@@ -290,7 +273,6 @@ def start_game(request):
                             {
                                 "Game History": 
                                     format_message(
-                                                    logging_init.get_log_index(),
                                                     f"{filename}", 
                                                     f"{line}", 
                                                     f"{funcname}",  
@@ -319,7 +301,6 @@ def start_game(request):
                                 line = frame.lineno 
                                 funcname = frame.line
                                 logging_init.log_entry[current_time] = format_message(
-                                                                                        logging_init.get_log_index(),
                                                                                         f"{filename}", 
                                                                                         f"{line}", 
                                                                                         f"{funcname}", 
@@ -335,7 +316,6 @@ def start_game(request):
                         line = frame.lineno 
                         funcname = frame.line
                         logging_init.log_entry[current_time] = format_message(
-                                                                                logging_init.get_log_index(),
                                                                                 f"{filename}", 
                                                                                 f"{line}", 
                                                                                 f"{funcname}", 
@@ -364,7 +344,6 @@ def start_game(request):
                     line = frame.lineno 
                     funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
                                                                             f"{line}", 
                                                                             f"{funcname}", 
@@ -384,21 +363,12 @@ def start_game(request):
         filename = frame.filename
         line = frame.lineno 
         funcname = frame.line
-        # { logging_init.get_log_index(): 
-        #     current_time: {
-        #                     words[0]:filename
-        #                   },
-        #                   { 
-        #                     words[1]:line
-        #                   },
-        #                   ........
-        logging_init.log_entry[logging_init.get_log_index()][current_time] = format_message(
-                                                                                                logging_init.get_log_index(),
-                                                                                                f"{filename}", 
-                                                                                                f"{line}", 
-                                                                                                f"{funcname}", 
-                                                                                                f"{e}"
-                                                                                           )
+        logging_init.log_entry[current_time] = format_message(
+                                                                f"{filename}", 
+                                                                f"{line}", 
+                                                                f"{funcname}", 
+                                                                f"{e}"
+                                                             )
         log = Logging.objects.get(logging_id='003') # Serialiing is needed because everything needs to be json serialized 
         serializer = LoggingSerializer(log)
         return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
@@ -426,7 +396,6 @@ def logging(request):
                     line = frame.lineno 
                     funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
                                                                             f"{line}", 
                                                                             f"{funcname}", 
@@ -452,7 +421,6 @@ def logging(request):
                                 line = frame.lineno 
                                 funcname = frame.line
                                 logging_init.log_entry[current_time] = format_message(
-                                                                                        logging_init.get_log_index(),
                                                                                         f"{filename}", 
                                                                                         f"{line}", 
                                                                                         f"{funcname}", 
@@ -471,7 +439,6 @@ def logging(request):
                             diff = (iso_conv - timestamp).total_seconds()
                             if (diff < 0):
                                 # Game was refreshed 
-                                logging_init.set_log_index(1)
                                 GameViewSet.set_new_game(1)
                                 GameViewSet.set_prev_game_value(1 - GameViewSet.get_new_game(None))
                             logging_init.log_entry[timestamp.strftime("%Y-%m-%d %H:%M:%S")] = value
@@ -481,7 +448,6 @@ def logging(request):
                         line = frame.lineno 
                         funcname = frame.line
                         logging_init.log_entry[current_time] = format_message(
-                                                                                logging_init.get_log_index(),
                                                                                 f"{filename}", 
                                                                                 f"{line}", 
                                                                                 f"{funcname}", 
@@ -499,7 +465,6 @@ def logging(request):
                     line = frame.lineno 
                     funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
                                                                             f"{line}", 
                                                                             f"{funcname}", 
@@ -525,7 +490,6 @@ def logging(request):
                     line = frame.lineno 
                     funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
                                                                             f"{line}", 
                                                                             f"{funcname}", 
@@ -550,7 +514,6 @@ def logging(request):
         line = frame.lineno 
         funcname = frame.line
         logging_init.log_entry[current_time] = format_message(
-                                                                logging_init.get_log_index(),
                                                                 f"{filename}", 
                                                                 f"{line}", 
                                                                 f"{funcname}", 
@@ -589,7 +552,6 @@ def winner(request):
                     line = frame.lineno 
                     funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
                                                                             f"{line}", 
                                                                             f"{funcname}", 
@@ -621,7 +583,6 @@ def winner(request):
                             line = frame.lineno 
                             funcname = frame.line
                             logging_init.log_entry[current_time] = format_message(
-                                                                                    logging_init.get_log_index(),
                                                                                     f"{filename}", 
                                                                                     f"{line}", 
                                                                                     f"{funcname}", 
@@ -635,7 +596,6 @@ def winner(request):
                     line = frame.lineno 
                     funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
                                                                             f"{line}", 
                                                                             f"{funcname}", 
@@ -662,7 +622,6 @@ def winner(request):
                     line = frame.lineno 
                     funcname = frame.line
                     logging_init.log_entry[current_time] = format_message(
-                                                                            logging_init.get_log_index(),
                                                                             f"{filename}", 
                                                                             f"{line}", 
                                                                             f"{funcname}", 
@@ -686,7 +645,6 @@ def winner(request):
         line = frame.lineno 
         funcname = frame.line
         logging_init.log_entry[current_time] = format_message(
-                                                                logging_init.get_log_index(),
                                                                 f"{filename}", 
                                                                 f"{line}", 
                                                                 f"{funcname}", 

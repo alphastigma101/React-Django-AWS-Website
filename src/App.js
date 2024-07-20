@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 // Create objects that do not need to be a component
 let X = 0;
 let O = 0;
-const remote = 1;
+const remote = 0;
+
 /*
  * (Game): This is driver function for my react app. It starts the game up.
  * Params:
@@ -33,6 +34,22 @@ export default function Game() {
       setLoggingCreated(true); // set loggingCreated to true
     }
   }, [loggingCreated]);
+  // Make a post request and send the history data to the Django API End Point
+  const sendHistory = async (data) => {
+    if (remote === 1) {
+      try {
+        // Check to see if EC2 is up and running
+        const response  = await axios.post('http://52.41.13.5/polls/start_game', data);
+      } catch(error) { logging(String(error)); }
+    }
+    else {
+      try {
+        // Check to see if the app is running locally
+        const response = await axios.post('http://localhost:8000/polls/start_game', data);
+      } 
+      catch(error) { logging(String(error)); }
+    }
+  }
   /*
    * (handlePlay): Is a private function of the Game Function
    * Params:
@@ -42,31 +59,15 @@ export default function Game() {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
-    // Make a post request and send the history data to the Django API End Point
-    const sendHistory = async (data) => {
-      if (remote === 1) {
-        try {
-          // Check to see if EC2 is up and running
-          const response  = await axios.post('http://52.41.13.5/polls/start_game', data);
-        } catch(error) { logging(String(error)); }
-      }
-      else {
-        try {
-          // Check to see if the app is running locally
-          const response = await axios.post('http://localhost:8000/polls/start_game', data);
-        } 
-        catch(error) { logging(String(error)); }
-      }
-    } 
-    // Check if currentMove is greater than prevMove
-    useEffect(() => {
-      debugger;
-      if (currentMove > prevMove) {
-        sendHistory(nextHistory);
-        setPrevMove(currentMove);
-      }
-    }, [currentMove, prevMove]);
   }
+  // Check if currentMove is greater than prevMove
+  useEffect(() => {
+    if (currentMove > prevMove) {
+      sendHistory(history);
+      setPrevMove(currentMove);
+    }
+  }, [currentMove, prevMove]);
+
   /*
    * (jumpTo): Is a private function of Game Function
    * Params:
