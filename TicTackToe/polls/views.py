@@ -390,7 +390,9 @@ def logging(request):
         data = request.data
         match request.method:
             case 'POST':
-                if data is None:
+                try:
+                    assert data is not None
+                except Exception as e:
                     frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
                     filename = frame.filename
                     line = frame.lineno 
@@ -405,7 +407,8 @@ def logging(request):
                     serializer = LoggingSerializer(log)
                     return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
                 check = logging_init.is_dictionary(data)
-                if (check is True):
+                try:
+                    assert check is True
                     # Check to see if the data coming from react app is a dictionary 
                     if (len(logging_init.refreshed) <= 0):
                         # Store the timestamp of the game started
@@ -458,7 +461,7 @@ def logging(request):
                         serializer = LoggingSerializer(log)
                         log.save()
                         return Response({"Log History": serializer.data}, status=status.HTTP_400_BAD_REQUEST)
-                else:
+                except Exception as e:
                     text = "data that was recieved is not a dictionary!"
                     frame = traceback.extract_tb(e.__traceback__, limit=4)[0]                                         
                     filename = frame.filename
