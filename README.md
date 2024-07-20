@@ -10,20 +10,22 @@
     - [A File Used To Bridge Your App To The Web](#a-file-used-to-bridge-your-app-to-the-web)
     - [Debugging](#debugging)
     - [Sources](#react-sources)
-4. [Running My App Locally](#running-the-app-locally)
+4. [Learn Django](#django)
+    - [Sources](#sources)
+5. [Running My App Locally](#running-the-app-locally)
     - [Sources](#local-sources)
-5. [Configuring React App For AWS (Front-End)](#configuring-react-app-for-aws-(Front-end)) 
+6. [Configuring React App For AWS (Front-End)](#configuring-react-app-for-aws-(Front-end)) 
     - [Front End Configuration Sources](#front-end-configuration-sources)
-6. [Setting Up The BackEnd on AWS](#setting-up-the-backend-on-aws)
+7. [Setting Up The BackEnd on AWS](#setting-up-the-backend-on-aws)
     - [ACLS And Security Groups](#acls-and-security-groups)
     - [BackEnd Sources](#backend-sources)
-7. [Setting Up A Custom VPC](#setting-up-a-custom-vpc)
+8. [Setting Up A Custom VPC](#setting-up-a-custom-vpc)
     - [FMI](#..)
     - [FMI](#..)
-8. [Automatically Deploying Your App On The BackEnd](#automatically-deploying-your-app-on-the-backend)
+9. [Automatically Deploying Your App On The BackEnd](#automatically-deploying-your-app-on-the-backend)
     - [Sources](#automatically-deploying-your-app-resources)
     - [TroubleShooting Auto Deployment](#troubleShooting-auto-deployment)
-9. [TroubleShooting your VPC](#troubleshooting-your-vpc)
+10. [TroubleShooting your VPC](#troubleshooting-your-vpc)
     - [Verifying Your Routing Table](#verifying-your-routing-table)
     - [Check And See If Your VPC Is Connected To Your Instance](#check-and-see-if-your-vpc-is-connected-to-your-instance)
     - [Sources](#vpc-troubleshooting-resources)
@@ -88,16 +90,50 @@
     </StrictMode>
 ```
 # Debugging 
-* There are multiple ways to debug your react app, the easiest way to debug it is setting `debugger;` inside a code block and execute `npm start`, inspect the browser and click on 'debugger' and start debugging your code. You could use `ndb` which then you could use `npx` which allows you to run locally installed packages such as `serve`. Ex: `npx serve -l 4000` will make a static website for your app.
-```
-    FMI
-```
+* There are multiple ways to debug your react app, the easiest way to debug it is setting `debugger;` inside a code block and execute `npm start`, inspect the browser and click on 'debugger' and start debugging your code. You could use `ndb` which then you could use `npx` which allows you to run locally installed packages such as `serve`. Ex: `npx serve -l 4000` will make a static website for your app. You can also install `Devtools` for chrome to debug your app if needed.
+
 # React Sources
 * **ReactDOM**:
     * *https://legacy.reactjs.org/docs/react-dom.html*
 * **React**:
     * *https://legacy.reactjs.org/docs/react-api.html*
+* **React useState() function**:
+    * *https://react.dev/reference/react/useState#adding-state-to-a-component*
+* **Test Cases in JavaScript**:
+    * *https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/javascript/*
+* **React Beginner HandBook**:
+    * *https://www.freecodecamp.org/news/react-beginner-handbook/*
+* **What does the => mean in JavaScript**:
+    * *https://www.freecodecamp.org/news/what-does-the-hashrocket-symbol-mean-in-javascript/*
+* **Deploying your react app**:
+    * *https://create-react-app.dev/docs/deployment/*
+* **ndb (npm debugger)**:
+    * *https://medium.com/@navneetskahlon/debugging-node-js-applications-with-ndb-a-comprehensive-guide-13d3111af414*
+* **debugger protocol**:
+    * *https://chromedevtools.github.io/debugger-protocol-viewer/v8/*
+* **Basic Steps When Debugging**:
+    * *https://www.freecodecamp.org/news/how-to-get-started-debugging-nodejs-applications-with-ndb-a37e8747dbba/*
+    * *https://medium.com/@jayashakthiperera/cracking-the-code-a-comprehensive-guide-to-debugging-react-apps-b93fb0620f97*
+
+
 * ----------------------------------------------------------------------------------------------
+
+### Django
+* You can go off the user manual for Django which walks your the steps to create an app
+
+
+# Sources:
+* **Django app part two:**
+    * *https://docs.djangoproject.com/en/5.0/intro/tutorial02/*
+* **Serialization**:
+    * *https://www.django-rest-framework.org/api-guide/serializers/*
+* **Validation**:
+    * *https://www.django-rest-framework.org/api-guide/serializers/#validation*
+* **Databases**:
+    * *https://docs.djangoproject.com/en/5.0/topics/db/models/#automatic-primary-key-fields*
+* **Request and Response**:
+    * *https://docs.djangoproject.com/en/5.0/ref/request-response/*
+
 
 ### Running the App Locally 
 * Install dependencies with `npm install`. Note that there may be deprecated dependencies or it saying vulernable packages detected. You can ignore that if and only if talks about **nth-check** as the package.json file is structured in a way where it tests the product `dependencies` and the development `dependencies`. You can view this source here for more info: **https://stackoverflow.com/questions/71781795/react-npm-inefficient-regular-expression-complexity-in-nth-check**. 
